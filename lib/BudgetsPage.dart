@@ -1,60 +1,95 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
+import 'package:miniproject/Firebaseshit.dart';
 import 'package:miniproject/widgets.dart';
 
-class Budgetspage extends StatelessWidget{
+class BudgetsPage extends StatefulWidget{
+  const BudgetsPage({super.key});
+  @override
+  State<BudgetsPage> createState() =>  _BudgetsPage();
+}
 
-  const Budgetspage({super.key});
-  static const List cats = [
-    ["Shopping", Icons.shopping_cart, 50.0, 500.0],
-    ["Food", Icons.dining, 620.0, 1000.0],
-    ["Transport", Icons.train, 200.0, 1200.0],
-    ["Medical", Icons.health_and_safety, 600.0, 2000.0],
-    ["Utilities", Icons.design_services, 100.0, 1000.0]
-  ];
+
+class _BudgetsPage extends State<BudgetsPage> {
+  // const BudgetsPage({super.key});
+
+  // static const List cats = [
+  //   ["Shopping", Icons.shopping_cart, 50.0, 500.0],
+  //   ["Food", Icons.dining, 620.0, 1000.0],
+  //   ["Transport", Icons.train, 200.0, 1200.0],
+  //   ["Medical", Icons.health_and_safety, 600.0, 2000.0],
+  //   ["Utilities", Icons.design_services, 100.0, 1000.0]
+  // ];
+  List<List<dynamic>> cats = [];
+  bool isLoading = true; // Flag to show loading state
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData(); // Fetch data when the widget is initialized
+  }
+
+  Future<void> fetchData() async {
+    cats = await Firebaseshit().fetchBudgets(); // Fetch budgets
+    setState(() {
+      isLoading = false; // Update loading state
+    });
+  }
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         backgroundColor: Colors.deepPurple[200],
-        body: Column(
-          children: [
-            // Wrap ListView.builder in Expanded
-            Expanded(
-              child: ListView.builder(
-                itemCount: cats.length,
-                itemBuilder: (context, index) {
-                  // Ensure the data is valid and non-null
-                  if (cats[index].length < 4 ||
-                      cats[index][0] == null ||
-                      cats[index][1] == null ||
-                      cats[index][2] == null ||
-                      cats[index][3] == null) {
-                    return const SizedBox.shrink(); // Return an empty widget if invalid data
-                  }
+        appBar: AppBar(
+          title: const Text('Budgets'),
+          centerTitle: true,
+          backgroundColor: Colors.deepPurple,
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              // Header or introductory widget
+              
 
-                  return Padding(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                    child: CategoriesWidget(
-                      title: cats[index][0] as String,
-                      iconn: cats[index][1] as IconData,
-                      curr: cats[index][2] as double, // Ensure `curr` and `maxx` match the type
-                      maxx: cats[index][3] as double,
-                      border: true,
-                    ),
-                  );
-                },
+              // Wrap ListView.builder in Expanded to avoid overflow
+              Expanded(
+                child: ListView.builder(
+                  itemCount: cats.length,
+                  itemBuilder: (context, index) {
+                    final category = cats[index];
+                    
+                    // Ensure the data is valid and non-null
+                    if (category.length < 4 ||
+                        category[0] == null ||
+                        category[1] == null ||
+                        category[2] == null ||
+                        category[3] == null) {
+                      return const SizedBox.shrink(); // Empty widget if invalid data
+                    }
+
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: CategoriesWidget(
+                        title: category[0] as String,
+                        iconn: category[1] ,
+                        curr: category[2]  , // Ensure `curr` and `maxx` match the type
+                        maxx: category[3] ,
+                        border: true,
+                      ),
+                    );
+                  },
+                ),
               ),
-            ),
 
-            // SpendingsWidget(cats: cats),
-          ],
+              // Uncomment or add other widgets for additional functionality
+              // SpendingsWidget(cats: cats),
+            ],
+          ),
         ),
       ),
     );
   }
-
-
 }

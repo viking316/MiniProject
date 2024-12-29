@@ -1,35 +1,52 @@
 import 'package:flutter/material.dart';
+import 'package:miniproject/Firebaseshit.dart';
 import 'package:miniproject/widgets.dart';
 
-class HomePage extends StatelessWidget{
 
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
-  
-  static const List cats = [
-    ["Shopping", Icons.shopping_cart, 50.0, 500.0],
-    ["Food", Icons.dining, 620.0, 1000.0],
-    ["Transport", Icons.train, 200.0, 1200.0],
-    ["Medical", Icons.health_and_safety, 600.0, 2000.0],
-    ["Utilities", Icons.design_services, 100.0, 1000.0]
-  ];
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  List<List<dynamic>> cats = [];
+  bool isLoading = true; // Flag to show loading state
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData(); // Fetch data when the widget is initialized
+  }
+
+  Future<void> fetchData() async {
+    cats = await Firebaseshit().fetchBudgets(); // Fetch budgets
+    setState(() {
+      isLoading = false; // Update loading state
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.amber[500],
-      body: Padding(
-        padding: EdgeInsets.only(top: 15),
-        child: Column(
-          children: [
-          SpendingsWidget(cats: cats),
-        ]
-        )
-        
-        
-      )
+      appBar: AppBar(
+        title: const Text("Home Page"),
+        backgroundColor: Colors.amber[700],
+        centerTitle: true,
+      ),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator()) // Show loader while fetching data
+          : Padding(
+              padding: const EdgeInsets.only(top: 15.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SpendingsWidget(cats: cats), // Pass the fetched data to SpendingsWidget
+                ],
+              ),
+            ),
     );
-    // TODO: implement build
-    
   }
-
-
 }

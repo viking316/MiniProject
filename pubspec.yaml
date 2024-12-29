@@ -36,6 +36,10 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   fl_chart: ^0.69.2
+  firebase_core: ^3.9.0
+  cloud_firestore: ^5.6.0
+  intl: ^0.20.1
+  font_awesome_flutter: ^10.8.0
   # syncfusion_flutter_charts: ^28.1.36
 
 dev_dependencies:
@@ -54,6 +58,16 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+  # fonts:
+  #   - family: FontAwesomeSolid
+  #     fonts:
+  #       - asset: fonts/fa-solid-900.ttf
+  #   - family: FontAwesomeRegular
+  #     fonts:
+  #       - asset: fonts/fa-regular-400.ttf
+  #   - family: FontAwesomeBrands
+  #     fonts:
+  #       - asset: fonts/fa-brands-400.ttf
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
