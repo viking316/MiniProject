@@ -1,40 +1,58 @@
+import 'dart:convert';
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'; 
 import 'package:miniproject/BudgetsPage.dart';
+import 'package:miniproject/Firebaseshit.dart';
 import 'package:miniproject/HomePage.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:miniproject/Firebaseshit.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-// import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
 
-// import 'package:miniproject/widgets.dart';
+import 'package:miniproject/widgets.dart';
+
+Future<String> getFilePath() async {
+  // Get the app's documents directory
+  final directory = await getApplicationDocumentsDirectory();
+  print(directory);
+  return directory.path;
+}
+
+Future<bool> budgetsdbExists() async {
+  String path = await getFilePath();
+  File file = File('$path/budgets.json'); // You can now access or write to this file
+  return await file.exists();
+}
 
 
-void main() async{
+Future<List<List<dynamic>>> readBudgetsdb() async {
+  String path = await getFilePath();
+  File budgetsdbAccess = File('$path/budgets.json');
+  String budgetsdbContents = await budgetsdbAccess.readAsString();
+  List<List<dynamic>> budgets = List<List<dynamic>>.from(
+      jsonDecode(budgetsdbContents).map((item) => List<dynamic>.from(item)));
+  return budgets;
+}
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  if(kIsWeb){
-
-  await Firebase.initializeApp(
-    options: const FirebaseOptions(apiKey: "AIzaSyDOY6BM9_fwFDiTJVCLj-1Iq89UbgNH49s",
-
-  authDomain: "miniproject-57689.firebaseapp.com",
-
-  projectId: "miniproject-57689",
-
-  storageBucket: "miniproject-57689.firebasestorage.app",
-
-  messagingSenderId: "640848538796",
-
-  appId: "1:640848538796:web:4467fb27967114736dc309",
-
-  measurementId: "G-B7F3Y13LK5"
-  ));
-  }else{
-
+  if (kIsWeb) {
+    await Firebase.initializeApp(
+        options: const FirebaseOptions(
+            apiKey: "AIzaSyDOY6BM9_fwFDiTJVCLj-1Iq89UbgNH49s",
+            authDomain: "miniproject-57689.firebaseapp.com",
+            projectId: "miniproject-57689",
+            storageBucket: "miniproject-57689.firebasestorage.app",
+            messagingSenderId: "640848538796",
+            appId: "1:640848538796:web:4467fb27967114736dc309",
+            measurementId: "G-B7F3Y13LK5"));
+  } else {
     await Firebase.initializeApp();
   }
+  String currentDirectory = Directory.current.path;
+
+  print('Current working directory: $currentDirectory');
   // print("hello world");
   // print(DateTime(2020,1,1));
   // print(DateFormat('dd-MM-yy-H-m').format(DateTime(2020,1,1,11,59)));
@@ -50,8 +68,30 @@ void main() async{
   //   summ += transaction["amount"] as double;  // Print each transaction map
   // }
   // print(summ);
+  // String budgetsdblocation = "/database/budgets.json";
 
-  List<List<dynamic>> budgets = await Firebaseshit().fetchBudgets();
+  // File budgetsexists = File(budgetsdblocation);
+  bool budgetsexists = await budgetsdbExists();
+  if (budgetsexists) {
+    print("budgets database found!, using the same!");
+    // String budgetsdbstring = await budgetsexists.readAsString();
+    // String budgetsdbstring = await rootBundle.loadString("assets/budgets.json");
+
+    final List<List<dynamic>> budgets = await readBudgetsdb();
+
+  } else {
+    print("no budgets databse found, creating one now!");
+    List<List<dynamic>> budgets = await Firebaseshit().fetchBudgets();
+    String jsonString = jsonEncode(budgets);
+
+    // Save to a file
+    String path = await getFilePath();
+    File file = File('$path/budgetsdb.json');
+    await file.writeAsString(jsonString);
+    
+    print('Data saved to budgetsdb.json');
+  }
+
   // print('Transactions:');
   // for (var transaction in budgets) {
   //   print(transaction);  // Print each transaction map
@@ -80,31 +120,27 @@ class _MyAppState extends State<MyApp> {
     const HomePage(),
     const BudgetsPage(),
   ];
-  IconData apparal = FontAwesomeIcons.shirt;
-  IconData  beauty = FontAwesomeIcons.sprayCanSparkles;
-  IconData education = FontAwesomeIcons.userGraduate;
-  IconData Entertainment = FontAwesomeIcons.tv;
-  IconData Food = FontAwesomeIcons.utensils;
-  IconData gift = FontAwesomeIcons.gifts;
-  IconData groceries= FontAwesomeIcons.appleWhole;
-  IconData household = FontAwesomeIcons.houseLaptop;
-  IconData other = FontAwesomeIcons.wrench;
-  IconData petty= FontAwesomeIcons.moneyBill;
-  IconData self_dev = FontAwesomeIcons.personRays;
-  IconData social = FontAwesomeIcons.shareNodes;
-  IconData Transport= FontAwesomeIcons.trainSubway;
+  // IconData apparal = FontAwesomeIcons.shirt;
+  // IconData  beauty = FontAwesomeIcons.sprayCanSparkles;
+  // IconData education = FontAwesomeIcons.userGraduate;
+  // IconData Entertainment = FontAwesomeIcons.tv;
+  // IconData Food = FontAwesomeIcons.utensils;
+  // IconData gift = FontAwesomeIcons.gifts;
+  // IconData groceries= FontAwesomeIcons.appleWhole;
+  // IconData household = FontAwesomeIcons.houseLaptop;
+  // IconData other = FontAwesomeIcons.wrench;
+  // IconData petty= FontAwesomeIcons.moneyBill;
+  // IconData self_dev = FontAwesomeIcons.personRays;
+  // IconData social = FontAwesomeIcons.shareNodes;
+  // IconData Transport= FontAwesomeIcons.trainSubway;
   // IconData a = FontAwesomeIcons.shirt;
-  
-
-
 
   @override
   Widget build(BuildContext context) {
-
     return MaterialApp(
       home: Scaffold(
         // ignore: avoid_print
-        
+
         body: _pages[_selectedpage],
         bottomNavigationBar: ClipRRect(
           child: BackdropFilter(

@@ -39,7 +39,12 @@ class Firebaseshit {
 
 
 
-
+// EXAMPLE USAGE OF BELOW METHOD
+// List<Map<String, dynamic>> transactions = await Firebaseshit.fetchTransactionsByCategoryAndDateRange(
+  //   category: "Food",
+  //   startDate: DateTime(2020,1,1),
+  //   endDate: DateTime(2020,2,28),
+  // );
 
   static Future<List<Map<String, dynamic>>> fetchTransactionsByCategoryAndDateRange({
     required String category,
@@ -100,7 +105,7 @@ class Firebaseshit {
         // print('Transaction ${doc.id}: ${data.toString()}');
         return data;
       }).toList();
-
+      
       return transactions;
     } catch (e) {
       print('Error fetching transactions: $e');

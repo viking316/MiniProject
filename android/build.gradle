@@ -12,6 +12,7 @@ buildscript{
     }
     dependencies{
         classpath 'com.google.gms:google-services:4.4.2'
+        classpath 'com.android.tools.build:gradle:8.2.0'
     }
 }
 
@@ -27,3 +28,17 @@ subprojects {
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
+// android {
+//     compileSdkVersion 33  // or your required SDK version
+
+//     defaultConfig {
+
+//         targetSdkVersion 33  // Update to your target SDK
+//     }
+
+//     // Add this block to ensure Java 20 is used for compiling
+//     compileOptions {
+//         sourceCompatibility JavaVersion.VERSION_20
+//         targetCompatibility JavaVersion.VERSION_20
+//     }
+// }

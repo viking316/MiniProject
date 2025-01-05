@@ -77,7 +77,7 @@ class CategoriesWidget extends StatelessWidget {
                       ),
                     ),
                   const SizedBox(width: 5, height: 5,),
-                  FaIcon(FontAwesomeIcons.shirt)
+                  const FaIcon(FontAwesomeIcons.shirt)
                   // Icon(
                   //   trueiconn,
                   //   color: Colors.white,
@@ -171,7 +171,7 @@ class SpendingsWidget extends StatelessWidget {
               ),
               // List of Spendings
               // PUT THIS LIST VIEW INSIDE A CONTAINER IF THE CATEGORIES ARE OVERLAPPING WITH THE TITLE AND STUFF
-              Container(
+              SizedBox(
                 width: 350,
                 height: 350,               
                 // decoration: BoxDecoration(
