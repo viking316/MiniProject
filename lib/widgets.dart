@@ -7,21 +7,24 @@ String limitText(String text, int maxLength) {
   }
   return text;
 }
+List exclusions = ["Petty cash", "Salary", "Allowance"];
+
+
 Map<String, IconData> getIconMap() {
   return {
-    "shirt": FontAwesomeIcons.shirt,
-    "sprayCanSparkles": FontAwesomeIcons.sprayCanSparkles,
-    "userGraduate": FontAwesomeIcons.userGraduate,
-    "tv": FontAwesomeIcons.tv,
-    "utensils": FontAwesomeIcons.utensils,
-    "gifts": FontAwesomeIcons.gifts,
-    "appleWhole": FontAwesomeIcons.appleWhole,
-    "houseLaptop": FontAwesomeIcons.houseLaptop,
-    "wrench": FontAwesomeIcons.wrench,
-    "moneyBill": FontAwesomeIcons.moneyBill,
-    "personRays": FontAwesomeIcons.personRays,
-    "shareNodes": FontAwesomeIcons.shareNodes,
-    "trainSubway": FontAwesomeIcons.trainSubway,
+    "Apparel": FontAwesomeIcons.shirt,
+    "Beauty": FontAwesomeIcons.sprayCanSparkles,
+    "Education": FontAwesomeIcons.userGraduate,
+    "Entertainment": FontAwesomeIcons.tv,
+    "Food": FontAwesomeIcons.utensils,
+    "Gift": FontAwesomeIcons.gifts,
+    "Groceries": FontAwesomeIcons.appleWhole,
+    "Household": FontAwesomeIcons.houseLaptop,
+    "Other": FontAwesomeIcons.wrench,
+    "Petty": FontAwesomeIcons.moneyBill,
+    "Self-development": FontAwesomeIcons.personRays,
+    "Social Life": FontAwesomeIcons.shareNodes,
+    "Transportation": FontAwesomeIcons.trainSubway,
   };
 }
 IconData? getIconData(String iconName) {
@@ -49,7 +52,7 @@ class CategoriesWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final percentageValue = ((curr / maxx) * 100).clamp(0, 100); // Ensure valid percentage
     final percentageText = "${percentageValue.toStringAsFixed(1)}%"; // Show 1 decimal place
-    final trueiconn = getIconData(iconn);
+    final trueiconn = getIconData(title);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 6.0),
@@ -77,12 +80,12 @@ class CategoriesWidget extends StatelessWidget {
                       ),
                     ),
                   const SizedBox(width: 5, height: 5,),
-                  const FaIcon(FontAwesomeIcons.shirt)
-                  // Icon(
-                  //   trueiconn,
-                  //   color: Colors.white,
-                  //   size: 20,
-                  // ),
+                  // const FaIcon(FontAwesomeIcons.shirt),
+                  Icon(
+                    trueiconn,
+                    color: Colors.white,
+                    size: 15,
+                  ),
                 ],
               ),
             ),
@@ -132,7 +135,15 @@ class SpendingsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Calculate the total spendings
-    final total = cats.fold<num>(0, (sum, cat) => sum + (cat[2] as num));
+    final total = cats.fold<num>(0, (sum, cat) {
+  // Check if cat[2] exists in exclusions list and skip it if true
+  if (exclusions.contains(cat[0] as String)) {
+    return sum; // Skip adding the value if the category is in exclusions
+  }
+  
+  // Otherwise, add cat[2] to the sum
+  return sum + (cat[2] as num);
+});
 
     return Padding(
       padding: const EdgeInsets.all(22),
@@ -190,7 +201,11 @@ class SpendingsWidget extends StatelessWidget {
                       cats[index][3] == null) {
                     return const SizedBox.shrink(); // Skip invalid data
                   }
+                  if (exclusions.contains(cats[index][0])) {
+      return const SizedBox.shrink(); // Don't render anything for excluded categories
+    }
 
+                  // if (title)
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
                     child: Stack(

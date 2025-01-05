@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:miniproject/Firebaseshit.dart';
 import 'package:miniproject/widgets.dart';
 
+List exclusions = ["Petty cash", "Salary", "Allowance"];
 class BudgetsPage extends StatefulWidget{
   const BudgetsPage({super.key});
   @override
@@ -68,10 +69,13 @@ class _BudgetsPage extends State<BudgetsPage> {
                         category[3] == null) {
                       return const SizedBox.shrink(); // Empty widget if invalid data
                     }
-
+                    if (exclusions.contains(category[0] as String )){
+                      return  SizedBox.shrink();
+                    }
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: CategoriesWidget(
+                      child: 
+                        CategoriesWidget(
                         title: category[0] as String,
                         iconn: category[1] ,
                         curr: category[2]  , // Ensure `curr` and `maxx` match the type
