@@ -113,4 +113,15 @@ class Firebaseshit {
       return [];
     }
   }
+
+  // static Future<String> catsList({
+    
+
+  // })await{
+
+  //    QuerySnapshot catsSnapshot = await budgetsCats.get();
+  //         List<String> catsList = catsSnapshot.docs.map((doc) => doc.id).toList();
+  //         print(catsList);
+
+  // }
 }

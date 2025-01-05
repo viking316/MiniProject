@@ -12,28 +12,31 @@ import 'dart:io';
 
 import 'package:miniproject/widgets.dart';
 
-Future<String> getFilePath() async {
-  // Get the app's documents directory
-  final directory = await getApplicationDocumentsDirectory();
-  print(directory);
-  return directory.path;
-}
 
-Future<bool> budgetsdbExists() async {
-  String path = await getFilePath();
-  File file = File('$path/budgets.json'); // You can now access or write to this file
-  return await file.exists();
-}
+// DO NOT REMOVE THE THREE METHODS BELOW
+
+// Future<String> getFilePath() async {
+//   // Get the app's documents directory
+//   final directory = await getApplicationDocumentsDirectory();
+//   print(directory);
+//   return directory.path;
+// }
+
+// Future<bool> budgetsdbExists() async {
+//   String path = await getFilePath();
+//   File file = File('$path/budgetsdb.json'); // You can now access or write to this file
+//   return await file.exists();
+// }
 
 
-Future<List<List<dynamic>>> readBudgetsdb() async {
-  String path = await getFilePath();
-  File budgetsdbAccess = File('$path/budgets.json');
-  String budgetsdbContents = await budgetsdbAccess.readAsString();
-  List<List<dynamic>> budgets = List<List<dynamic>>.from(
-      jsonDecode(budgetsdbContents).map((item) => List<dynamic>.from(item)));
-  return budgets;
-}
+// Future<List<List<dynamic>>> readBudgetsdb() async {
+//   String path = await getFilePath();
+//   File budgetsdbAccess = File('$path/budgetsdb.json');
+//   String budgetsdbContents = await budgetsdbAccess.readAsString();
+//   List<List<dynamic>> budgets = List<List<dynamic>>.from(
+//       jsonDecode(budgetsdbContents).map((item) => List<dynamic>.from(item)));
+//   return budgets;
+// }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -50,13 +53,13 @@ void main() async {
   } else {
     await Firebase.initializeApp();
   }
-  String currentDirectory = Directory.current.path;
 
-  print('Current working directory: $currentDirectory');
-  // print("hello world");
-  // print(DateTime(2020,1,1));
-  // print(DateFormat('dd-MM-yy-H-m').format(DateTime(2020,1,1,11,59)));
+  // DO NOT DELETE THESE LINES OF CODE ...
 
+  // String currentDirectory = Directory.current.path;
+
+  // print('Current working directory: $currentDirectory');
+  
   //  List<Map<String, dynamic>> transactions = await Firebaseshit.fetchTransactionsByCategoryAndDateRange(
   //   category: "Food",
   //   startDate: DateTime(2020,1,1),
@@ -68,34 +71,31 @@ void main() async {
   //   summ += transaction["amount"] as double;  // Print each transaction map
   // }
   // print(summ);
-  // String budgetsdblocation = "/database/budgets.json";
 
-  // File budgetsexists = File(budgetsdblocation);
-  bool budgetsexists = await budgetsdbExists();
-  if (budgetsexists) {
-    print("budgets database found!, using the same!");
-    // String budgetsdbstring = await budgetsexists.readAsString();
-    // String budgetsdbstring = await rootBundle.loadString("assets/budgets.json");
 
-    final List<List<dynamic>> budgets = await readBudgetsdb();
+  // // File budgetsexists = File(budgetsdblocation);
+  // bool budgetsexists = await budgetsdbExists();
+  // if (budgetsexists) {
+  //   print("budgets database found!, using the same!");
+  //   // String budgetsdbstring = await budgetsexists.readAsString();
+  //   // String budgetsdbstring = await rootBundle.loadString("assets/budgets.json");
 
-  } else {
-    print("no budgets databse found, creating one now!");
-    List<List<dynamic>> budgets = await Firebaseshit().fetchBudgets();
-    String jsonString = jsonEncode(budgets);
+  //   final List<List<dynamic>> budgets = await readBudgetsdb();
 
-    // Save to a file
-    String path = await getFilePath();
-    File file = File('$path/budgetsdb.json');
-    await file.writeAsString(jsonString);
-    
-    print('Data saved to budgetsdb.json');
-  }
+  // } else {
+  //   print("no budgets databse found, creating one now!");
+  //   List<List<dynamic>> budgets = await Firebaseshit().fetchBudgets();
+  //   String jsonString = jsonEncode(budgets);
 
-  // print('Transactions:');
-  // for (var transaction in budgets) {
-  //   print(transaction);  // Print each transaction map
+  //   // Save to a file
+  //   String path = await getFilePath();
+  //   File file = File('$path/budgetsdb.json');
+  //   await file.writeAsString(jsonString);
+
+  //   print('Data saved to budgetsdb.json');
   // }
+
+// TILL HERE
 
   runApp(const MyApp());
 }
