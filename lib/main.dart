@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
@@ -8,7 +7,6 @@ import 'package:miniproject/Firebaseshit.dart';
 import 'package:miniproject/HomePage.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:path_provider/path_provider.dart';
-import 'dart:io';
 
 import 'package:miniproject/widgets.dart';
 
@@ -189,3 +187,4 @@ class _MyAppState extends State<MyApp> {
 //     );
 //   }
 // }
+print("amazing");
