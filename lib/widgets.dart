@@ -34,7 +34,7 @@ IconData? getIconData(String iconName) {
 
 class CategoriesWidget extends StatelessWidget {
   final String title;
-  String iconn;
+  // String iconn;
   final int curr;
   final int maxx;
   final bool border;
@@ -42,7 +42,7 @@ class CategoriesWidget extends StatelessWidget {
   CategoriesWidget({
     super.key,
     required this.title,
-    required this.iconn,
+    // required this.iconn,
     required this.curr,
     required this.maxx,
     required this.border,
@@ -142,7 +142,7 @@ class SpendingsWidget extends StatelessWidget {
   }
   
   // Otherwise, add cat[2] to the sum
-  return sum + (cat[2] as num);
+  return sum + (cat[1] as num);
 });
 
     return Padding(
@@ -194,11 +194,11 @@ class SpendingsWidget extends StatelessWidget {
                 itemCount: cats.length,
                 itemBuilder: (context, index) {
                   // Validate data
-                  if (cats[index].length < 4 ||
+                  if (cats[index].length < 3 ||
                       cats[index][0] == null ||
                       cats[index][1] == null ||
-                      cats[index][2] == null ||
-                      cats[index][3] == null) {
+                      cats[index][2] == null ) {
+                      print("skipped in widgets page");
                     return const SizedBox.shrink(); // Skip invalid data
                   }
                   if (exclusions.contains(cats[index][0])) {
@@ -212,7 +212,7 @@ class SpendingsWidget extends StatelessWidget {
                       children: [
                         // Bar Chart
                         HorizontalBarChart(
-                          value: cats[index][2],
+                          value: cats[index][1],
                           maxValue: total as int ,
                           border: false,
                         ),

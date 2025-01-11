@@ -62,11 +62,10 @@ class _BudgetsPage extends State<BudgetsPage> {
                     final category = cats[index];
                     
                     // Ensure the data is valid and non-null
-                    if (category.length < 4 ||
+                    if (category.length < 3 ||
                         category[0] == null ||
                         category[1] == null ||
-                        category[2] == null ||
-                        category[3] == null) {
+                        category[2] == null ) {
                       return const SizedBox.shrink(); // Empty widget if invalid data
                     }
                     if (exclusions.contains(category[0] as String )){
@@ -77,9 +76,9 @@ class _BudgetsPage extends State<BudgetsPage> {
                       child: 
                         CategoriesWidget(
                         title: category[0] as String,
-                        iconn: category[1] ,
-                        curr: category[2]  , // Ensure `curr` and `maxx` match the type
-                        maxx: category[3] ,
+                        // iconn: category[1] ,
+                        curr: category[1]  , // Ensure `curr` and `maxx` match the type
+                        maxx: category[2] ,
                         border: true,
                       ),
                     );
