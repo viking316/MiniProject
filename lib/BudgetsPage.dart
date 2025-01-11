@@ -77,9 +77,9 @@ class _BudgetsPage extends State<BudgetsPage> {
                       child: 
                         CategoriesWidget(
                         title: category[0] as String,
-                        iconn: category[1] ,
-                        curr: category[2]  , // Ensure `curr` and `maxx` match the type
-                        maxx: category[3] ,
+                        // iconn: category[1] ,
+                        curr: category[1]  , // Ensure `curr` and `maxx` match the type
+                        maxx: category[2] ,
                         border: true,
                       ),
                     );

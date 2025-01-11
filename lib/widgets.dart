@@ -34,7 +34,7 @@ IconData? getIconData(String iconName) {
 
 class CategoriesWidget extends StatelessWidget {
   final String title;
-  String iconn;
+  // String iconn;
   final int curr;
   final int maxx;
   final bool border;
@@ -42,7 +42,7 @@ class CategoriesWidget extends StatelessWidget {
   CategoriesWidget({
     super.key,
     required this.title,
-    required this.iconn,
+    // required this.iconn,
     required this.curr,
     required this.maxx,
     required this.border,

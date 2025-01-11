@@ -22,12 +22,12 @@ class Firebaseshit {
       for (var doc in querySnapshot.docs) {
         // Retrieve data from each document
         String docName = doc.id; // Document name
-        String iconValue = doc['icon']; // Icon field value
+        // String iconValue = doc['icon']; // Icon field value
         int currentValue = doc['current']; // Current field value
         int budgetValue = doc['budget']; // Budget field value
 
         // Add the values to the list in the required format
-        budgetsList.add([docName, iconValue, currentValue, budgetValue]);
+        budgetsList.add([docName, currentValue, budgetValue]);
       }
     } catch (e) {
       print('Error fetching budgets: $e');
