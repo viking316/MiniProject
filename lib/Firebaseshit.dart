@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 
 
 class Firebaseshit {
-  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
 
 
@@ -36,6 +36,18 @@ class Firebaseshit {
     return budgetsList;
   }
 
+  
+
+//   Future<List<Map<String, dynamic>>> fetchTransactionsForCategory(String category) async {
+//   // Fetch transactions from Firebase for the given category
+//   // Replace the following mock data with Firebase queries
+//   return [
+//     {'description': 'Grocery shopping', 'amount': 100, 'date': '2025-01-01'},
+//     {'description': 'Lunch', 'amount': 50, 'date': '2025-01-02'},
+//   ];
+// }
+
+
 
 
 
@@ -51,65 +63,34 @@ class Firebaseshit {
     required DateTime startDate,
     required DateTime endDate,
   }) async {
-    String newStartTime = DateFormat('dd-MM-yy-H-m').format(startDate);
-    String newEndTime = DateFormat('dd-MM-yy-H-m').format(endDate);
     try {
       final FirebaseFirestore firestore = FirebaseFirestore.instance;
-      
-      // Convert input dates to Timestamps for Firestore query
-      // final startTimestamp = Timestamp.fromDate(DateTime(
-      //   startDate.year,
-      //   startDate.month,
-      //   startDate.day,
-      //   0, 0, 0
-      // ));
-      
-      // final endTimestamp = Timestamp.fromDate(DateTime(
-      //   endDate.year,
-      //   endDate.month,
-      //   endDate.day,
-      //   23, 59, 59
-      // ));
-      
 
-      print('Querying with parameters:');
-      print('Category: $category');
-      print('Start Timestamp: $startDate');
-      print('End Timestamp: $endDate');
+      // Convert input dates to Firestore-compatible strings or timestamps
+      String startTimestamp = DateFormat('dd-MM-yy-H-m').format(startDate);
+      String endTimestamp = DateFormat('dd-MM-yy-H-m').format(endDate);
 
-      // Query the nested structure with Timestamp comparison
+      // Query the nested structure with date range filtering
       final querySnapshot = await firestore
           .collection('budgetsdb')
           .doc(category)
           .collection('Transactions')
-          .where('date', isGreaterThanOrEqualTo: newStartTime)
-          .where('date', isLessThanOrEqualTo: newEndTime)
+          .where('date', isGreaterThanOrEqualTo: startTimestamp)
+          .where('date', isLessThanOrEqualTo: endTimestamp)
           .get();
-      print(newStartTime);
-      print(newEndTime);
-      print('Found ${querySnapshot.docs.length} transactions');
 
-      // Extract transactions and their data
-      final transactions = querySnapshot.docs.map((doc) {
+      // Map the data from Firestore to a list of transactions
+      return querySnapshot.docs.map((doc) {
         final data = doc.data();
-        data['id'] = doc.id;
-        
-        // Convert Timestamp to readable format if it exists
-        if (data['date'] is Timestamp) {
-          final timestamp = data['date'] as Timestamp;
-          final dateTime = timestamp.toDate();
-          // Keep the original timestamp and add formatted date
-          data['dateFormatted'] = '${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour}:${dateTime.minute}';
-        }
-        
-        // print('Transaction ${doc.id}: ${data.toString()}');
-        return data;
+        return {
+          'note': data['note'],
+          'amount': data['amount'],
+          'type': data['type'], // Income or Expense
+          'date': data['date'], // Firestore date
+        };
       }).toList();
-      
-      return transactions;
     } catch (e) {
       print('Error fetching transactions: $e');
-      print('Error details: ${e.toString()}');
       return [];
     }
   }

@@ -1,26 +1,17 @@
-
 import 'package:flutter/material.dart';
 import 'package:miniproject/Firebaseshit.dart';
 import 'package:miniproject/widgets.dart';
+import 'TransactionsPage.dart'; // Import the new transactions page
 
 List exclusions = ["Petty cash", "Salary", "Allowance"];
-class BudgetsPage extends StatefulWidget{
+
+class BudgetsPage extends StatefulWidget {
   const BudgetsPage({super.key});
   @override
-  State<BudgetsPage> createState() =>  _BudgetsPage();
+  State<BudgetsPage> createState() => _BudgetsPage();
 }
 
-
 class _BudgetsPage extends State<BudgetsPage> {
-  // const BudgetsPage({super.key});
-
-  // static const List cats = [
-  //   ["Shopping", Icons.shopping_cart, 50.0, 500.0],
-  //   ["Food", Icons.dining, 620.0, 1000.0],
-  //   ["Transport", Icons.train, 200.0, 1200.0],
-  //   ["Medical", Icons.health_and_safety, 600.0, 2000.0],
-  //   ["Utilities", Icons.design_services, 100.0, 1000.0]
-  // ];
   List<List<dynamic>> cats = [];
   bool isLoading = true; // Flag to show loading state
 
@@ -36,6 +27,7 @@ class _BudgetsPage extends State<BudgetsPage> {
       isLoading = false; // Update loading state
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -51,43 +43,47 @@ class _BudgetsPage extends State<BudgetsPage> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              // Header or introductory widget
-              
-
-              // Wrap ListView.builder in Expanded to avoid overflow
               Expanded(
                 child: ListView.builder(
                   itemCount: cats.length,
                   itemBuilder: (context, index) {
                     final category = cats[index];
-                    
-                    // Ensure the data is valid and non-null
+
                     if (category.length < 3 ||
                         category[0] == null ||
                         category[1] == null ||
-                        category[2] == null ) {
-                      return const SizedBox.shrink(); // Empty widget if invalid data
+                        category[2] == null) {
+                      return const SizedBox.shrink();
                     }
-                    if (exclusions.contains(category[0] as String )){
-                      return  SizedBox.shrink();
+                    if (exclusions.contains(category[0] as String)) {
+                      return const SizedBox.shrink();
                     }
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: 
-                        CategoriesWidget(
-                        title: category[0] as String,
-                        // iconn: category[1] ,
-                        curr: category[1]  , // Ensure `curr` and `maxx` match the type
-                        maxx: category[2] ,
-                        border: true,
+
+                    return GestureDetector(
+                      onTap: () {
+                        // Navigate to TransactionsPage
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => TransactionsPage(
+                              category: category[0] as String,
+                            ),
+                          ),
+                        );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: CategoriesWidget(
+                          title: category[0] as String,
+                          curr: category[1],
+                          maxx: category[2],
+                          border: true,
+                        ),
                       ),
                     );
                   },
                 ),
               ),
-
-              // Uncomment or add other widgets for additional functionality
-              // SpendingsWidget(cats: cats),
             ],
           ),
         ),
@@ -95,3 +91,4 @@ class _BudgetsPage extends State<BudgetsPage> {
     );
   }
 }
+
