@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:miniproject/Firebaseshit.dart';
 
 class TransactionsPage extends StatefulWidget {
@@ -14,14 +13,17 @@ class TransactionsPage extends StatefulWidget {
 class _TransactionsPageState extends State<TransactionsPage> {
   late DateTime _startDate;
   late DateTime _endDate;
+  
   late Future<List<Map<String, dynamic>>> _transactionsFuture;
 
   @override
   void initState() {
+    
     super.initState();
     // Initialize default date range (last 30 days)
     _startDate = DateTime(2020, 1, 1);
     _endDate = DateTime.now();
+    print("initian datatype of start date is :${_startDate.runtimeType} and date is : $_startDate ");
     _transactionsFuture = _fetchTransactions();
   }
 
@@ -58,9 +60,12 @@ class _TransactionsPageState extends State<TransactionsPage> {
     );
 
     if (dateRange != null) {
+      print("set new date range! to $dateRange");
       setState(() {
         _startDate = dateRange.start;
+        print("updated the start date to: ${dateRange.start}");
         _endDate = dateRange.end;
+        print("updated the end  date to: ${dateRange.end}");
         _transactionsFuture = _fetchTransactions(); // Refresh transactions based on new date range
       });
     }

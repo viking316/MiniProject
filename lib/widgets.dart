@@ -39,7 +39,7 @@ class CategoriesWidget extends StatelessWidget {
   final int maxx;
   final bool border;
 
-  CategoriesWidget({
+  const CategoriesWidget({
     super.key,
     required this.title,
     // required this.iconn,
