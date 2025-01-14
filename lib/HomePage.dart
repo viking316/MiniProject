@@ -11,7 +11,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<List<dynamic>> cats = [];
-  bool isLoading = true; // Flag to show loading state
+  bool isLoading = true; // Flag to show loading state 
   final List<String> exclusions = ["Petty cash", "Salary", "Allowance"]; // Categories to exclude
 
   @override

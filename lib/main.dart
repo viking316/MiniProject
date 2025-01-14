@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:miniproject/BudgetsPage.dart';
 import 'package:miniproject/HomePage.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'Firebaseshit.dart';
 
 
 
@@ -104,7 +105,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   int _selectedpage = 0;
-
+  
   void _updatepage(int towhat) {
     setState(() {
       _selectedpage = towhat;
@@ -132,8 +133,10 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+   
     return MaterialApp(
       home: Scaffold(
+        
         // ignore: avoid_print
 
         body: _pages[_selectedpage],
@@ -164,6 +167,7 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
+
 
 // // Dummy HomePage widget
 // class HomePage extends StatelessWidget {
