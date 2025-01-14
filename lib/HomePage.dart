@@ -11,8 +11,12 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<List<dynamic>> cats = [];
-  bool isLoading = true; // Flag to show loading state 
-  final List<String> exclusions = ["Petty cash", "Salary", "Allowance"]; // Categories to exclude
+  bool isLoading = true; // Flag to show loading state
+  final List<String> exclusions = [
+    "Petty cash",
+    "Salary",
+    "Allowance"
+  ]; // Categories to exclude
 
   @override
   void initState() {
@@ -37,11 +41,13 @@ class _HomePageState extends State<HomePage> {
     // Convert filtered data into PieChart sections
     return filteredCats.map((category) {
       final String label = category[0]; // Category name
-      final double value = category[1].toDouble(); // Ensure the value is a double
+      final double value =
+          category[1].toDouble(); // Ensure the value is a double
 
       return PieChartSectionData(
         value: value,
-        color: Colors.primaries[filteredCats.indexOf(category) % Colors.primaries.length],
+        color: Colors.primaries[
+            filteredCats.indexOf(category) % Colors.primaries.length],
         radius: 50,
         title: '', // No text on the pie chart
       );
@@ -60,13 +66,15 @@ class _HomePageState extends State<HomePage> {
       ),
       padding: const EdgeInsets.all(10), // Padding inside the box
       child: SizedBox(
-        height: itemsPerPage * 30.0, // Restrict the height dynamically for 5 items
+        height:
+            itemsPerPage * 30.0, // Restrict the height dynamically for 5 items
         child: SingleChildScrollView(
           child: Column(
             children: List.generate(filteredCats.length, (index) {
               final category = filteredCats[index];
               final String label = category[0];
-              final Color color = Colors.primaries[index % Colors.primaries.length];
+              final Color color =
+                  Colors.primaries[index % Colors.primaries.length];
 
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 5.0),
@@ -75,14 +83,17 @@ class _HomePageState extends State<HomePage> {
                     Container(
                       width: 12,
                       height: 12,
-                      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+                      decoration:
+                          BoxDecoration(color: color, shape: BoxShape.circle),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         label,
-                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-                        overflow: TextOverflow.ellipsis, // Handles long text gracefully
+                        style: const TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.w500),
+                        overflow: TextOverflow
+                            .ellipsis, // Handles long text gracefully
                       ),
                     ),
                   ],
@@ -105,7 +116,9 @@ class _HomePageState extends State<HomePage> {
         centerTitle: true,
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator()) // Show loader while fetching data
+          ? const Center(
+              child:
+                  CircularProgressIndicator()) // Show loader while fetching data
           : Padding(
               padding: const EdgeInsets.all(15.0),
               child: Row(
@@ -124,7 +137,8 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(width: 20),
                   Expanded(
                     flex: 1,
-                    child: buildScrollableLegend(), // Legend with vertical scrolling
+                    child:
+                        buildScrollableLegend(), // Legend with vertical scrolling
                   ),
                 ],
               ),
@@ -132,10 +146,3 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-
-
-
-
-
-
-

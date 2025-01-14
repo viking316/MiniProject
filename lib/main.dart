@@ -1,13 +1,11 @@
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart'; 
+import 'package:flutter/material.dart';
 import 'package:miniproject/BudgetsPage.dart';
 import 'package:miniproject/HomePage.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'Firebaseshit.dart';
-
-
 
 // DO NOT REMOVE THE THREE METHODS BELOW
 
@@ -23,7 +21,6 @@ import 'Firebaseshit.dart';
 //   File file = File('$path/budgetsdb.json'); // You can now access or write to this file
 //   return await file.exists();
 // }
-
 
 // Future<List<List<dynamic>>> readBudgetsdb() async {
 //   String path = await getFilePath();
@@ -55,7 +52,7 @@ void main() async {
   // String currentDirectory = Directory.current.path;
 
   // print('Current working directory: $currentDirectory');
-  
+
   //  List<Map<String, dynamic>> transactions = await Firebaseshit.fetchTransactionsByCategoryAndDateRange(
   //   category: "Food",
   //   startDate: DateTime(2020,1,1),
@@ -67,7 +64,6 @@ void main() async {
   //   summ += transaction["amount"] as double;  // Print each transaction map
   // }
   // print(summ);
-
 
   // // File budgetsexists = File(budgetsdblocation);
   // bool budgetsexists = await budgetsdbExists();
@@ -105,7 +101,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   int _selectedpage = 0;
-  
+
   void _updatepage(int towhat) {
     setState(() {
       _selectedpage = towhat;
@@ -133,10 +129,8 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-   
     return MaterialApp(
       home: Scaffold(
-        
         // ignore: avoid_print
 
         body: _pages[_selectedpage],

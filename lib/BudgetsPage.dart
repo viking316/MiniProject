@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:miniproject/DatabaseFetching.dart';
 import 'package:miniproject/Firebaseshit.dart';
 import 'package:miniproject/widgets.dart';
 import 'TransactionsPage.dart'; // Import the new transactions page
@@ -12,23 +13,17 @@ class BudgetsPage extends StatefulWidget {
 }
 
 class _BudgetsPage extends State<BudgetsPage> {
-  List<List<dynamic>> cats = [];
+  final Firebaseshit firebaseshit = Firebaseshit();
+  // List<List<dynamic>> cats = [];
   bool isLoading = true; // Flag to show loading state
 
   @override
   void initState() {
     super.initState();
-    fetchData(); // Fetch data when the widget is initialized
+    // fetchData(); // Fetch data when the widget is initialized
+    firebaseshit.fetchBudgetsInRealTime();
   }
 
-  Future<void> fetchData() async {
-    cats = await Firebaseshit().fetchBudgets(); // Fetch budgets
-    setState(() {
-      isLoading = false; // Update loading state
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -44,42 +39,56 @@ class _BudgetsPage extends State<BudgetsPage> {
           child: Column(
             children: [
               Expanded(
-                child: ListView.builder(
-                  itemCount: cats.length,
-                  itemBuilder: (context, index) {
-                    final category = cats[index];
-
-                    if (category.length < 3 ||
-                        category[0] == null ||
-                        category[1] == null ||
-                        category[2] == null) {
-                      return const SizedBox.shrink();
-                    }
-                    if (exclusions.contains(category[0] as String)) {
-                      return const SizedBox.shrink();
+                child: ValueListenableBuilder<List<List<dynamic>>>(
+                  valueListenable: firebaseshit.catsNotifier,
+                  builder: (context, cats, child) {
+                    if (cats.isEmpty) {
+                      return Center(
+                        child: CircularProgressIndicator(),
+                      );
                     }
 
-                    return GestureDetector(
-                      onTap: () {
-                        // Navigate to TransactionsPage
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => TransactionsPage(
-                              category: category[0] as String,
+                    return ListView.builder(
+                      itemCount: cats.length,
+                      itemBuilder: (context, index) {
+                        final category = cats[index];
+
+                        // Ensure the category data is valid
+                        if (category.length < 3 ||
+                            category[0] == null ||
+                            category[1] == null ||
+                            category[2] == null) {
+                          return const SizedBox.shrink();
+                        }
+
+                        // Exclude specific categories
+                        if (exclusions.contains(category[0] as String)) {
+                          return const SizedBox.shrink();
+                        }
+
+                        return GestureDetector(
+                          onTap: () {
+                            // Navigate to TransactionsPage
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => TransactionsPage(
+                                  category: category[0] as String,
+                                ),
+                              ),
+                            );
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: CategoriesWidget(
+                              title: category[0] as String,
+                              curr: category[1],
+                              maxx: category[2],
+                              border: true,
                             ),
                           ),
                         );
                       },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: CategoriesWidget(
-                          title: category[0] as String,
-                          curr: category[1],
-                          maxx: category[2],
-                          border: true,
-                        ),
-                      ),
                     );
                   },
                 ),
@@ -91,4 +100,3 @@ class _BudgetsPage extends State<BudgetsPage> {
     );
   }
 }
-

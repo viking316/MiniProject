@@ -13,38 +13,34 @@ class TransactionsPage extends StatefulWidget {
 class _TransactionsPageState extends State<TransactionsPage> {
   late DateTime _startDate;
   late DateTime _endDate;
-  
-  late Future<List<Map<String, dynamic>>> _transactionsFuture;
+  final Firebaseshit _firebaseService = Firebaseshit();
 
   @override
   void initState() {
-    
     super.initState();
-    // Initialize default date range (last 30 days)
+    // Initialize default date range
     _startDate = DateTime(2020, 1, 1);
     _endDate = DateTime.now();
-    print("initian datatype of start date is :${_startDate.runtimeType} and date is : $_startDate ");
-    _transactionsFuture = _fetchTransactions();
+
+    // Start listening to transactions
+    _firebaseService.listenToAllTransactions();
   }
 
-  // Fetch transactions from Firestore based on category and date range
-  Future<List<Map<String, dynamic>>> _fetchTransactions() {
-    return Firebaseshit.fetchTransactionsByCategoryAndDateRange(
-      category: widget.category,
-      startDate: _startDate,
-      endDate: _endDate,
-    );
+  @override
+  void dispose() {
+    _firebaseService.dispose();
+    super.dispose();
   }
 
   // Format the date for display
   String formatDate(dynamic date) {
     if (date is String) {
-      return date; // Already formatted string
+      return date;
     } else if (date is DateTime) {
-      return '${date.day}/${date.month}/${date.year}'; // Format DateTime
+      return '${date.day}/${date.month}/${date.year}';
     } else if (date is int) {
       DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(date * 1000);
-      return '${dateTime.day}/${dateTime.month}/${dateTime.year}'; // Format Unix timestamp
+      return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
     } else {
       return 'No date';
     }
@@ -60,21 +56,12 @@ class _TransactionsPageState extends State<TransactionsPage> {
     );
 
     if (dateRange != null) {
-      print("set new date range! to $dateRange");
       setState(() {
         _startDate = dateRange.start;
-        print("updated the start date to: ${dateRange.start}");
         _endDate = dateRange.end;
-        print("updated the end  date to: ${dateRange.end}");
-        _transactionsFuture = _fetchTransactions(); // Refresh transactions based on new date range
       });
     }
   }
-
-  
-
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -84,25 +71,26 @@ class _TransactionsPageState extends State<TransactionsPage> {
         backgroundColor: Colors.deepPurple,
         actions: [
           IconButton(
-            icon: Icon(Icons.date_range),
-            onPressed: _pickDateRange, // Trigger date range picker
+            icon: const Icon(Icons.date_range),
+            onPressed: _pickDateRange,
           ),
         ],
       ),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: _transactionsFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+      body: ValueListenableBuilder<List<List<Map<String, dynamic>>>>(
+        valueListenable: _firebaseService.transactionsNotifier,
+        builder: (context, categoriesTransactions, child) {
+          // Filter transactions for this category and date range
+          final transactions =
+              _firebaseService.getTransactionsByCategoryAndDateRange(
+            category: widget.category,
+            startDate: _startDate,
+            endDate: _endDate,
+          );
+
+          if (transactions.isEmpty) {
             return const Center(child: Text('No transactions found.'));
           }
 
-          final transactions = snapshot.data!;
           return ListView.builder(
             itemCount: transactions.length,
             itemBuilder: (context, index) {
@@ -110,18 +98,18 @@ class _TransactionsPageState extends State<TransactionsPage> {
               final note = transaction['note'] ?? 'No note provided';
               final date = formatDate(transaction['date']);
               final amount = transaction['amount'] ?? 0;
-              final type = transaction['type'] ?? 'Unknown'; // Income or Expense
+              final type = transaction['type'] ?? 'Unknown';
 
               return ListTile(
-                title: Text(note), // Display the note
+                title: Text(note),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Amount: \$${amount.toStringAsFixed(2)}'), // Display the amount
-                    Text('Type: $type'), // Display the transaction type
+                    Text('Amount: \$${amount.toStringAsFixed(2)}'),
+                    Text('Type: $type'),
                   ],
                 ),
-                trailing: Text(date), // Display the formatted date
+                trailing: Text(date),
               );
             },
           );
@@ -130,6 +118,3 @@ class _TransactionsPageState extends State<TransactionsPage> {
     );
   }
 }
-
-
-
