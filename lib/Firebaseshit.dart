@@ -21,8 +21,8 @@ Future<List<List<dynamic>>> fetchBudgets() async {
     // Loop through the documents
     for (var doc in querySnapshot.docs) {
       String docName = doc.id;
-      int currentValue = doc['current'];
-      int budgetValue = doc['budget'];
+      int currentValue = (doc['current'] as num).toInt();
+      int budgetValue = (doc['budget'] as num).toInt();
 
       budgetsList.add([docName, currentValue, budgetValue]);
     }
