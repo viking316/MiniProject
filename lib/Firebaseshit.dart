@@ -71,6 +71,52 @@ class Firebaseshit {
     return budgetsList;
   }
 
+  Future<Map<String, dynamic>> fetchBudgetsAndUserInfo() async {
+  Map<String, dynamic> result = {
+    'categories': [],
+    'name': '',
+    'saved': 0,
+    'total_points': 0,
+    'total_spending': 0,
+  };
+
+  try {
+    // Fetch categories from 'categoriesdb'
+    final categoriesSnapshot = await _firestore
+        .collection('users')
+        .doc('user1')
+        .collection('categoriesdb')
+        .get();
+
+    List<List<dynamic>> categories = [];
+    for (var doc in categoriesSnapshot.docs) {
+      String docName = doc.id;
+      int currentValue = (doc['current'] as num).toInt();
+      int budgetValue = (doc['budget'] as num).toInt();
+      categories.add([docName, currentValue, budgetValue]);
+    }
+
+    // Fetch user-level info from the user's document
+    final userDocSnapshot =
+        await _firestore.collection('users').doc('user1').get();
+
+    if (userDocSnapshot.exists) {
+      final data = userDocSnapshot.data();
+      result['name'] = data?['name'] ?? '';
+      result['saved'] = (data?['saved'] as num?)?.toInt() ?? 0;
+      result['total_points'] = (data?['total_points'] as num?)?.toInt() ?? 0;
+      result['total_spending'] = (data?['total_spending'] as num?)?.toInt() ?? 0;
+    }
+
+    result['categories'] = categories;
+  } catch (e) {
+    print('Error fetching data: $e');
+  }
+
+  return result;
+}
+
+
   List<Map<String, dynamic>> getTransactionsByCategoryAndDateRange({
     required String category,
     required DateTime startDate,

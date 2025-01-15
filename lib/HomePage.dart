@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:miniproject/Firebaseshit.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:miniproject/widgets.dart';
+import 'package:miniproject/Firebaseshit.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -19,6 +18,12 @@ class _HomePageState extends State<HomePage> {
     "Allowance"
   ]; // Categories to exclude
 
+  // State variables for additional fields
+  String userName = '';
+  int savedAmount = 0;
+  int totalPoints = 0;
+  int totalSpending = 0;
+
   @override
   void initState() {
     super.initState();
@@ -26,8 +31,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> fetchData() async {
-    cats = await Firebaseshit().fetchBudgets(); // Fetch budgets
+    final data = await Firebaseshit().fetchBudgetsAndUserInfo(); // Combined fetch
     setState(() {
+      cats = data['categories'];
+      userName = data['name'];
+      savedAmount = data['saved'];
+      totalPoints = data['total_points'];
+      totalSpending = data['total_spending'];
       isLoading = false; // Update loading state
     });
   }
@@ -36,127 +46,171 @@ class _HomePageState extends State<HomePage> {
     return cats.where((category) => !exclusions.contains(category[0])).toList();
   }
 
-  // List<PieChartSectionData> generatePieChartSections() {
-  //   final filteredCats = getFilteredCategories();
+  List<PieChartSectionData> generatePieChartSections() {
+    final filteredCats = getFilteredCategories();
 
-  //   // Convert filtered data into PieChart sections
-  //   return filteredCats.map((category) {
-  //     final String label = category[0]; // Category name
-  //     final double value = category[1].toDouble(); // Ensure the value is a double
+    // Calculate total spending for the filtered categories
+    final total = filteredCats.fold<num>(0, (sum, cat) => sum + (cat[1] as num));
 
-  //     return PieChartSectionData(
-  //       value: value,
-  //       color: Colors.primaries[filteredCats.indexOf(category) % Colors.primaries.length],
-  //       radius: 50,
-  //       title: '', // No text on the pie chart
-  //     );
-  //   }).toList();
-  // }
+    // Convert filtered data into PieChart sections based on the total
+    return filteredCats.map((category) {
+      final String label = category[0]; // Category name
+      final double value = category[1].toDouble(); // Ensure the value is a double
+      final double percentage = (value / total) * 100; // Calculate percentage
 
-  // Widget buildScrollableLegend() {
-  //   final filteredCats = getFilteredCategories();
-  //   final int itemsPerPage = 5; // Number of categories visible at a time
+      return PieChartSectionData(
+        value: percentage, // Use percentage for proportional size
+        color: Colors.primaries[
+            filteredCats.indexOf(category) % Colors.primaries.length],
+        radius: 80,
+        title: '${percentage.toStringAsFixed(1)}%', // Display percentage as text
+        titleStyle: const TextStyle(
+          fontSize: 10, // Reduced font size
+          fontWeight: FontWeight.bold,
+          color: Colors.black, // Set color for better visibility
+        ),
+      );
+    }).toList();
+  }
 
-  //   return Container(
-  //     decoration: BoxDecoration(
-  //       color: Colors.white, // Background color for the legend box
-  //       border: Border.all(color: Colors.black, width: 2), // Black border
-  //       borderRadius: BorderRadius.circular(8), // Rounded corners
-  //     ),
-  //     padding: const EdgeInsets.all(10), // Padding inside the box
-  //     child: SizedBox(
-  //       height: itemsPerPage * 30.0, // Restrict the height dynamically for 5 items
-  //       child: SingleChildScrollView(
-  //         child: Column(
-  //           children: List.generate(filteredCats.length, (index) {
-  //             final category = filteredCats[index];
-  //             final String label = category[0];
-  //             final Color color = Colors.primaries[index % Colors.primaries.length];
+  Widget buildScrollableLegend() {
+    final filteredCats = getFilteredCategories();
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white, // Background color for the legend box
+        border: Border.all(color: Colors.black, width: 2), // Black border
+        borderRadius: BorderRadius.circular(8), // Rounded corners
+      ),
+      padding: const EdgeInsets.all(10), // Padding inside the box
+      child: SizedBox(
+        height: 150, // Restrict the height dynamically
+        child: SingleChildScrollView(
+          child: Column(
+            children: List.generate(filteredCats.length, (index) {
+              final category = filteredCats[index];
+              final String label = category[0];
+              final Color color =
+                  Colors.primaries[index % Colors.primaries.length];
 
-  //             return Padding(
-  //               padding: const EdgeInsets.symmetric(vertical: 5.0),
-  //               child: Row(
-  //                 children: [
-  //                   Container(
-  //                     width: 12,
-  //                     height: 12,
-  //                     decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-  //                   ),
-  //                   const SizedBox(width: 8),
-  //                   Expanded(
-  //                     child: Text(
-  //                       label,
-  //                       style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-  //                       overflow: TextOverflow.ellipsis, // Handles long text gracefully
-  //                     ),
-  //                   ),
-  //                 ],
-  //               ),
-  //             );
-  //           }),
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 5.0),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 12,
+                      height: 12,
+                      decoration:
+                          BoxDecoration(color: color, shape: BoxShape.circle),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        label,
+                        style: const TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.w500),
+                        overflow: TextOverflow.ellipsis, // Handles long text gracefully
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final filteredCategories = getFilteredCategories();
-
     return Scaffold(
-      backgroundColor: Colors.amber[500],
+      backgroundColor: Colors.grey[900], // Soft Gray Background
       appBar: AppBar(
         title: const Text("Home Page"),
-        backgroundColor: Colors.amber[700],
+        backgroundColor: Color(0xFF2ECC71), // Emerald Green App Bar
         centerTitle: true,
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : Padding(
               padding: const EdgeInsets.all(15.0),
-              child: PieChartWithLegend(categories: filteredCategories),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // User Info Section
+                  Card(
+                    elevation: 8, // Increased elevation for better card shadow
+                    margin: const EdgeInsets.only(bottom: 20),
+                    color: Colors.grey[850], // Dark grey background for the card
+                    child: Padding(
+                      padding: const EdgeInsets.all(15),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Name: $userName',
+                            style: const TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                          ),
+                          Text(
+                            'Saved Amount: ₹$savedAmount',
+                            style: const TextStyle(fontSize: 16, color: Colors.white),
+                          ),
+                          Text(
+                            'Total Points: $totalPoints',
+                            style: const TextStyle(fontSize: 16, color: Colors.white),
+                          ),
+                          Text(
+                            'Total Spending: ₹$totalSpending',
+                            style: const TextStyle(fontSize: 16, color: Colors.white),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  // Row for Pie Chart and Legend
+                  Expanded(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Pie Chart
+                        Expanded(
+                          flex: 2,
+                          child: Column(
+                            children: [
+                              Expanded(
+                                child: PieChart(
+                                  PieChartData(
+                                    sections: generatePieChartSections(),
+                                    sectionsSpace: 2,
+                                    centerSpaceRadius: 40,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 20),
+                        // Scrollable Legend
+                        Expanded(
+                          flex: 1,
+                          child: buildScrollableLegend(),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
     );
   }
-
-  // @override
-  // Widget build(BuildContext context) {
-  //   return Scaffold(
-  //     backgroundColor: Colors.amber[500],
-  //     appBar: AppBar(
-  //       title: const Text("Home Page"),
-  //       backgroundColor: Colors.amber[700],
-  //       centerTitle: true,
-  //     ),
-  //     body: isLoading
-  //         ? const Center(child: CircularProgressIndicator()) // Show loader while fetching data
-  //         : Padding(
-  //             padding: const EdgeInsets.all(15.0),
-  //             child: Row(
-  //               crossAxisAlignment: CrossAxisAlignment.start,
-  //               children: [
-  //                 Expanded(
-  //                   flex: 2,
-  //                   child: PieChart(
-  //                     PieChartData(
-  //                       sections: generatePieChartSections(),
-  //                       sectionsSpace: 2,
-  //                       centerSpaceRadius: 40,
-  //                     ),
-  //                   ),
-  //                 ),
-  //                 const SizedBox(width: 20),
-  //                 Expanded(
-  //                   flex: 1,
-  //                   child: buildScrollableLegend(), // Legend with vertical scrolling
-  //                 ),
-  //               ],
-  //             ),
-  //           ),
-  //   );
-  // }
 }
+
+
+
+
+
+
 
 
 
