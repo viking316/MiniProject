@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:fl_chart/fl_chart.dart';
 
+// Helper Functions and Data
 String limitText(String text, int maxLength) {
   if (text.length > maxLength) {
     return text.substring(0, maxLength); // Add ellipsis if it's too long
@@ -34,9 +35,9 @@ IconData? getIconData(String iconName) {
   return iconMap[iconName];
 }
 
+// CategoriesWidget
 class CategoriesWidget extends StatelessWidget {
   final String title;
-  // String iconn;
   final int curr;
   final int maxx;
   final bool border;
@@ -44,7 +45,6 @@ class CategoriesWidget extends StatelessWidget {
   const CategoriesWidget({
     super.key,
     required this.title,
-    // required this.iconn,
     required this.curr,
     required this.maxx,
     required this.border,
@@ -102,13 +102,11 @@ class CategoriesWidget extends StatelessWidget {
               child: Stack(
                 alignment: Alignment.centerLeft,
                 children: [
-                  // Horizontal Bar Chart
                   HorizontalBarChart(
                     value: curr,
                     maxValue: maxx,
                     border: border,
                   ),
-                  // Percentage Text
                   Positioned(
                     left: 8.0,
                     child: Text(
@@ -208,14 +206,8 @@ class SpendingsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Calculate the total spendings
     final total = cats.fold<num>(0, (sum, cat) {
-      // Check if cat[2] exists in exclusions list and skip it if true
-      if (exclusions.contains(cat[0] as String)) {
-        return sum; // Skip adding the value if the category is in exclusions
-      }
-
-      // Otherwise, add cat[2] to the sum
+      if (exclusions.contains(cat[0] as String)) return sum;
       return sum + (cat[1] as num);
     });
 
@@ -231,7 +223,6 @@ class SpendingsWidget extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header Row
               const Row(
                 children: [
                   Padding(
@@ -246,7 +237,6 @@ class SpendingsWidget extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // Spacer(),
                   Icon(
                     Icons.line_axis_outlined,
                     size: 35,
@@ -254,62 +244,25 @@ class SpendingsWidget extends StatelessWidget {
                   ),
                 ],
               ),
-              // List of Spendings
-              // PUT THIS LIST VIEW INSIDE A CONTAINER IF THE CATEGORIES ARE OVERLAPPING WITH THE TITLE AND STUFF
               SizedBox(
                 width: 350,
                 height: 350,
-                // decoration: BoxDecoration(
-
-                // ),
                 child: ListView.builder(
-                  shrinkWrap: true, // Ensures the ListView adjusts to content
-                  // physics: const NeverScrollableScrollPhysics(), // Prevents scrolling
                   itemCount: cats.length,
                   itemBuilder: (context, index) {
-                    // Validate data
                     if (cats[index].length < 3 ||
-                        cats[index][0] == null ||
-                        cats[index][1] == null ||
-                        cats[index][2] == null) {
-                      print("skipped in widgets page");
-                      return const SizedBox.shrink(); // Skip invalid data
+                        exclusions.contains(cats[index][0])) {
+                      return const SizedBox.shrink();
                     }
-                    if (exclusions.contains(cats[index][0])) {
-                      return const SizedBox
-                          .shrink(); // Don't render anything for excluded categories
-                    }
-
-                    // if (title)
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: Stack(
-                        children: [
-                          // Bar Chart
-                          HorizontalBarChart(
-                            value: cats[index][1],
-                            maxValue: total as int,
-                            border: false,
-                          ),
-                          // Category Name
-                          Positioned(
-                            left: 5,
-                            top: 8,
-                            child: Text(
-                              cats[index][0],
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 18,
-                                color: Color.fromARGB(148, 114, 108, 123),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                    return CategoriesWidget(
+                      title: cats[index][0],
+                      curr: cats[index][1],
+                      maxx: total as int,
+                      border: false,
                     );
                   },
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -439,14 +392,10 @@ class HorizontalBarPainter extends CustomPainter {
 }
 
 class PieChartWithLegend extends StatelessWidget {
-  final List<List<dynamic>> categories; // Data for the chart and legend
+  final List<List<dynamic>> categories;
 
-  const PieChartWithLegend({
-    super.key,
-    required this.categories,
-  });
+  const PieChartWithLegend({super.key, required this.categories});
 
-  /// Generates pie chart sections based on provided categories.
   List<PieChartSectionData> _generatePieChartSections() {
     return categories.map((category) {
       final String label = category[0];
@@ -462,8 +411,7 @@ class PieChartWithLegend extends StatelessWidget {
     }).toList();
   }
 
-  /// Builds a scrollable legend for the categories.
-  Widget _buildScrollableLegend({int itemsPerPage = 5}) {
+  Widget _buildScrollableLegend() {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -472,7 +420,7 @@ class PieChartWithLegend extends StatelessWidget {
       ),
       padding: const EdgeInsets.all(10),
       child: SizedBox(
-        height: itemsPerPage * 30.0,
+        height: 150.0,
         child: SingleChildScrollView(
           child: Column(
             children: List.generate(categories.length, (index) {
@@ -513,7 +461,6 @@ class PieChartWithLegend extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
           flex: 2,
