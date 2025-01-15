@@ -481,3 +481,128 @@ class PieChartWithLegend extends StatelessWidget {
     );
   }
 }
+
+
+// import React from 'react';
+// import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+// import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+
+// import 'package:fl_chart/fl_chart.dart';
+// import 'package:flutter/material.dart';
+Widget getTransactionLineChart(ValueNotifier<List<List<dynamic>>> transformedTransactionsNotifier) {
+  return Container(
+    height: 300,
+    padding: const EdgeInsets.all(16),
+    child: ValueListenableBuilder<List<List<dynamic>>>(
+      valueListenable: transformedTransactionsNotifier,
+      builder: (context, transactions, child) {
+        // Handle empty transactions
+        if (transactions.isEmpty) {
+          return const Center(child: Text("No data available"));
+        }
+
+        final Map<DateTime, double> dailyTotals = {};
+
+        // Process transactions to group amounts by date
+        for (var transaction in transactions) {
+          if (transaction.length < 4 || transaction[1] == null || transaction[3] == null) {
+            continue; // Skip invalid entries
+          }
+
+          // Extract the date and amount
+          final date = DateTime(
+            (transaction[3] as DateTime).year,
+            (transaction[3] as DateTime).month,
+            (transaction[3] as DateTime).day,
+          );
+          final amount = transaction[1] is int
+              ? (transaction[1] as int).toDouble()
+              : transaction[1] as double;
+
+          // Sum amounts for the same date
+          dailyTotals[date] = (dailyTotals[date] ?? 0.0) + amount;
+        }
+
+        // Convert dailyTotals to a sorted list of spots
+        final List<FlSpot> spots = dailyTotals.entries
+            .map((entry) => FlSpot(
+                  entry.key.millisecondsSinceEpoch.toDouble(),
+                  entry.value,
+                ))
+            .toList()
+          ..sort((a, b) => a.x.compareTo(b.x));
+
+        // Handle empty spots
+        if (spots.isEmpty) {
+          return const Center(child: Text("No data to display"));
+        }
+
+        // Render the line chart
+        return LineChart(
+          LineChartData(
+            gridData: FlGridData(
+              show: true,
+              drawVerticalLine: true,
+            ),
+            titlesData: FlTitlesData(
+              leftTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  reservedSize: 40,
+                  getTitlesWidget: (value, meta) {
+                    return Text('\$${value.toInt()}');
+                  },
+                ),
+              ),
+              bottomTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  reservedSize: 30,
+                  getTitlesWidget: (value, meta) {
+                    final date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
+                    return Text(
+                      '${date.day}/${date.month}',
+                      style: const TextStyle(fontSize: 10),
+                      overflow: TextOverflow.ellipsis,
+                    );
+                  },
+                ),
+              ),
+            ),
+            borderData: FlBorderData(
+              show: true,
+              border: Border.all(color: Colors.grey.withOpacity(0.3)),
+            ),
+            lineBarsData: [
+              LineChartBarData(
+                spots: spots,
+                isCurved: true,
+                color: Colors.blue,
+                barWidth: 3,
+                isStrokeCapRound: true,
+                dotData: FlDotData(show: true),
+                belowBarData: BarAreaData(
+                  show: true,
+                  color: Colors.blue.withOpacity(0.2),
+                ),
+              ),
+            ],
+            lineTouchData: LineTouchData(
+              touchTooltipData: LineTouchTooltipData(
+                getTooltipItems: (touchedSpots) {
+                  return touchedSpots.map((spot) {
+                    final date = DateTime.fromMillisecondsSinceEpoch(spot.x.toInt());
+                    return LineTooltipItem(
+                      '${date.day}/${date.month}/${date.year}\n\$${spot.y.toStringAsFixed(2)}',
+                      const TextStyle(color: Colors.white),
+                    );
+                  }).toList();
+                },
+              ),
+            ),
+          ),
+        );
+      },
+    ),
+  );
+}

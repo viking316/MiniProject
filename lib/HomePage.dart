@@ -145,90 +145,99 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[900], // Soft Gray Background
-      appBar: AppBar(
-        title: const Text("Home Page"),
-        backgroundColor: Color(0xFF2ECC71), // Emerald Green App Bar
-        centerTitle: true,
-      ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // User Info Section
-                  Card(
-                    elevation: 8, // Increased elevation for better card shadow
-                    margin: const EdgeInsets.only(bottom: 20),
-                    color: Colors.grey[850], // Dark grey background for the card
-                    child: Padding(
-                      padding: const EdgeInsets.all(15),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Name: $userName',
-                            style: const TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-                          ),
-                          Text(
-                            'Saved Amount: ₹$savedAmount',
-                            style: const TextStyle(fontSize: 16, color: Colors.white),
-                          ),
-                          Text(
-                            'Total Points: $totalPoints',
-                            style: const TextStyle(fontSize: 16, color: Colors.white),
-                          ),
-                          Text(
-                            'Total Spending: ₹$totalSpending',
-                            style: const TextStyle(fontSize: 16, color: Colors.white),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  // Row for Pie Chart and Legend
-                  Expanded(
-                    child: Row(
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    backgroundColor: Colors.grey[900],
+    appBar: AppBar(
+      title: const Text("Home Page"),
+      backgroundColor: const Color(0xFF2ECC71),
+      centerTitle: true,
+    ),
+    body: isLoading
+        ? const Center(child: CircularProgressIndicator())
+        : Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // User Info Section
+                Card(
+                  elevation: 8,
+                  margin: const EdgeInsets.only(bottom: 20),
+                  color: Colors.grey[850],
+                  child: Padding(
+                    padding: const EdgeInsets.all(15),
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Pie Chart
-                        Expanded(
-                          flex: 2,
-                          child: Column(
-                            children: [
-                              Expanded(
-                                child: PieChart(
-                                  PieChartData(
-                                    sections: generatePieChartSections(),
-                                    sectionsSpace: 2,
-                                    centerSpaceRadius: 40,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                        Text(
+                          'Name: $userName',
+                          style: const TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                         ),
-                        const SizedBox(width: 20),
-                        // Scrollable Legend
-                        Expanded(
-                          flex: 1,
-                          child: buildScrollableLegend(),
+                        Text(
+                          'Saved Amount: ₹$savedAmount',
+                          style: const TextStyle(fontSize: 16, color: Colors.white),
+                        ),
+                        Text(
+                          'Total Points: $totalPoints',
+                          style: const TextStyle(fontSize: 16, color: Colors.white),
+                        ),
+                        Text(
+                          'Total Spending: ₹$totalSpending',
+                          style: const TextStyle(fontSize: 16, color: Colors.white),
                         ),
                       ],
                     ),
                   ),
-                ],
-              ),
+                ),
+
+                // Row for Pie Chart and Legend
+                Expanded(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Pie Chart
+                      Expanded(
+                        flex: 2,
+                        child: Column(
+                          children: [
+                            Expanded(
+                              child: PieChart(
+                                PieChartData(
+                                  sections: generatePieChartSections(),
+                                  sectionsSpace: 2,
+                                  centerSpaceRadius: 40,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 20),
+
+                      // Scrollable Legend
+                      Expanded(
+                        flex: 1,
+                        child: buildScrollableLegend(),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // Transaction Line Chart
+                SizedBox(
+                  height: 350, // Set the height for the line chart
+                  child: getTransactionLineChart(firebaseService.transformedTransactionsNotifier),
+                ),
+              ],
             ),
-    );
-  }
+          ),
+  );
+}
 
   // @override
   // void dispose() {
