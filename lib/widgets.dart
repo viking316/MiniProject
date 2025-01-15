@@ -4,12 +4,12 @@ import 'package:fl_chart/fl_chart.dart';
 
 String limitText(String text, int maxLength) {
   if (text.length > maxLength) {
-    return text.substring(0, maxLength);  // Add ellipsis if it's too long
+    return text.substring(0, maxLength); // Add ellipsis if it's too long
   }
   return text;
 }
-List exclusions = ["Petty cash", "Salary", "Allowance"];
 
+List exclusions = ["Petty cash", "Salary", "Allowance"];
 
 Map<String, IconData> getIconMap() {
   return {
@@ -28,6 +28,7 @@ Map<String, IconData> getIconMap() {
     "Transportation": FontAwesomeIcons.trainSubway,
   };
 }
+
 IconData? getIconData(String iconName) {
   final iconMap = getIconMap();
   return iconMap[iconName];
@@ -51,8 +52,10 @@ class CategoriesWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final percentageValue = ((curr / maxx) * 100).clamp(0, 100); // Ensure valid percentage
-    final percentageText = "${percentageValue.toStringAsFixed(1)}%"; // Show 1 decimal place
+    final percentageValue =
+        ((curr / maxx) * 100).clamp(0, 100); // Ensure valid percentage
+    final percentageText =
+        "${percentageValue.toStringAsFixed(1)}%"; // Show 1 decimal place
     final trueiconn = getIconData(title);
 
     return Padding(
@@ -68,19 +71,22 @@ class CategoriesWidget extends StatelessWidget {
           children: [
             // Title and Icon Row
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: Row(
                 children: [
-                  
                   Text(
-                      title,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
+                    title,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
                     ),
-                  const SizedBox(width: 5, height: 5,),
+                  ),
+                  const SizedBox(
+                    width: 5,
+                    height: 5,
+                  ),
                   // const FaIcon(FontAwesomeIcons.shirt),
                   Icon(
                     trueiconn,
@@ -124,7 +130,6 @@ class CategoriesWidget extends StatelessWidget {
   }
 }
 
-
 class SpendingsWidget extends StatelessWidget {
   final List<dynamic> cats;
 
@@ -136,8 +141,6 @@ class SpendingsWidget extends StatelessWidget {
   // List<dynamic> getFilteredCategories() {
   //   return cats.where((category) => !exclusions.contains(category[0])).toList();
   // }
-
-
 
   // List<PieChartSectionData> generatePieChartSections() {
   //   final filteredCats = getFilteredCategories();
@@ -207,14 +210,14 @@ class SpendingsWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     // Calculate the total spendings
     final total = cats.fold<num>(0, (sum, cat) {
-  // Check if cat[2] exists in exclusions list and skip it if true
-  if (exclusions.contains(cat[0] as String)) {
-    return sum; // Skip adding the value if the category is in exclusions
-  }
-  
-  // Otherwise, add cat[2] to the sum
-  return sum + (cat[1] as num);
-});
+      // Check if cat[2] exists in exclusions list and skip it if true
+      if (exclusions.contains(cat[0] as String)) {
+        return sum; // Skip adding the value if the category is in exclusions
+      }
+
+      // Otherwise, add cat[2] to the sum
+      return sum + (cat[1] as num);
+    });
 
     return Padding(
       padding: const EdgeInsets.all(22),
@@ -255,58 +258,58 @@ class SpendingsWidget extends StatelessWidget {
               // PUT THIS LIST VIEW INSIDE A CONTAINER IF THE CATEGORIES ARE OVERLAPPING WITH THE TITLE AND STUFF
               SizedBox(
                 width: 350,
-                height: 350,               
+                height: 350,
                 // decoration: BoxDecoration(
-                  
+
                 // ),
                 child: ListView.builder(
-                shrinkWrap: true, // Ensures the ListView adjusts to content
-                // physics: const NeverScrollableScrollPhysics(), // Prevents scrolling
-                itemCount: cats.length,
-                itemBuilder: (context, index) {
-                  // Validate data
-                  if (cats[index].length < 3 ||
-                      cats[index][0] == null ||
-                      cats[index][1] == null ||
-                      cats[index][2] == null ) {
+                  shrinkWrap: true, // Ensures the ListView adjusts to content
+                  // physics: const NeverScrollableScrollPhysics(), // Prevents scrolling
+                  itemCount: cats.length,
+                  itemBuilder: (context, index) {
+                    // Validate data
+                    if (cats[index].length < 3 ||
+                        cats[index][0] == null ||
+                        cats[index][1] == null ||
+                        cats[index][2] == null) {
                       print("skipped in widgets page");
-                    return const SizedBox.shrink(); // Skip invalid data
-                  }
-                  if (exclusions.contains(cats[index][0])) {
-      return const SizedBox.shrink(); // Don't render anything for excluded categories
-    }
+                      return const SizedBox.shrink(); // Skip invalid data
+                    }
+                    if (exclusions.contains(cats[index][0])) {
+                      return const SizedBox
+                          .shrink(); // Don't render anything for excluded categories
+                    }
 
-                  // if (title)
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Stack(
-                      children: [
-                        // Bar Chart
-                        HorizontalBarChart(
-                          value: cats[index][1],
-                          maxValue: total as int ,
-                          border: false,
-                        ),
-                        // Category Name
-                        Positioned(
-                          left: 5,
-                          top: 8,
-                          child: Text(
-                            cats[index][0],
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 18,
-                              color: Color.fromARGB(148, 114, 108, 123),
+                    // if (title)
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Stack(
+                        children: [
+                          // Bar Chart
+                          HorizontalBarChart(
+                            value: cats[index][1],
+                            maxValue: total as int,
+                            border: false,
+                          ),
+                          // Category Name
+                          Positioned(
+                            left: 5,
+                            top: 8,
+                            child: Text(
+                              cats[index][0],
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 18,
+                                color: Color.fromARGB(148, 114, 108, 123),
+                              ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               )
-              
             ],
           ),
         ),
@@ -375,7 +378,6 @@ class HorizontalBarChart extends StatelessWidget {
   }
 }
 
-
 class HorizontalBarPainter extends CustomPainter {
   final int value; // Current value (portion of maxValue)
   final int maxValue; // Maximum value
@@ -407,7 +409,8 @@ class HorizontalBarPainter extends CustomPainter {
     canvas.drawRRect(backgroundRect, paint);
 
     // 2. Calculate the width of the filled portion
-    final double filledWidth = (value.clamp(0, maxValue) / maxValue) * size.width;
+    final double filledWidth =
+        (value.clamp(0, maxValue) / maxValue) * size.width;
 
     // 3. Draw the filled rectangle (current value) with rounded corners
     paint.color = fillColor;
@@ -451,7 +454,8 @@ class PieChartWithLegend extends StatelessWidget {
 
       return PieChartSectionData(
         value: value,
-        color: Colors.primaries[categories.indexOf(category) % Colors.primaries.length],
+        color: Colors
+            .primaries[categories.indexOf(category) % Colors.primaries.length],
         radius: 50,
         title: '',
       );
@@ -474,7 +478,8 @@ class PieChartWithLegend extends StatelessWidget {
             children: List.generate(categories.length, (index) {
               final category = categories[index];
               final String label = category[0];
-              final Color color = Colors.primaries[index % Colors.primaries.length];
+              final Color color =
+                  Colors.primaries[index % Colors.primaries.length];
 
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 5.0),
@@ -483,13 +488,15 @@ class PieChartWithLegend extends StatelessWidget {
                     Container(
                       width: 12,
                       height: 12,
-                      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+                      decoration:
+                          BoxDecoration(color: color, shape: BoxShape.circle),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         label,
-                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                        style: const TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.w500),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -524,67 +531,6 @@ class PieChartWithLegend extends StatelessWidget {
           child: _buildScrollableLegend(),
         ),
       ],
-    );
-  }
-}
-
-
-// import 'package:flutter/material.dart';
-
-class TransactionsDisplayWidget extends StatelessWidget {
-  final ValueNotifier<List<List<dynamic>>> transactionsNotifier;
-
-  const TransactionsDisplayWidget({super.key, required this.transactionsNotifier});
-
-  @override
-  Widget build(BuildContext context) {
-    return ValueListenableBuilder<List<List<dynamic>>>(
-      valueListenable: transactionsNotifier,
-      builder: (context, transactions, child) {
-        return Container(
-          padding: EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.5),
-                spreadRadius: 2,
-                blurRadius: 5,
-                offset: Offset(0, 3),
-              ),
-            ],
-          ),
-          child: transactions.isEmpty
-              ? Center(
-                  child: Text(
-                    'No transactions available',
-                    style: TextStyle(fontSize: 16, color: Colors.grey),
-                  ),
-                )
-              : ListView.builder(
-                  itemCount: transactions.length,
-                  itemBuilder: (context, index) {
-                    final transaction = transactions[index];
-                    return Card(
-                      margin: EdgeInsets.symmetric(vertical: 8),
-                      child: ListTile(
-                        title: Text(
-                          'Category: ${transaction[5]}',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Text(
-                          'Note: ${transaction[1]}\n'
-                          'Amount: ${transaction[2]} ${transaction[3]}\n'
-                          'Date: ${transaction[4]}',
-                        ),
-                        leading: Icon(Icons.receipt_long),
-                      ),
-                    );
-                  },
-                ),
-        );
-      },
     );
   }
 }
