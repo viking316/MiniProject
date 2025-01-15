@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:miniproject/BudgetsPage.dart';
 import 'package:miniproject/HomePage.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'Firebaseshit.dart';
 
 // DO NOT REMOVE THE THREE METHODS BELOW
 

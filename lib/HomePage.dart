@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:miniproject/Firebaseshit.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:miniproject/widgets.dart';
 
 class HomePage extends StatefulWidget {
@@ -18,10 +17,12 @@ class _HomePageState extends State<HomePage> {
     "Salary",
     "Allowance"
   ]; // Categories to exclude
-
+late final ValueNotifier<List<List<dynamic>>> transactionsNotifier;
   @override
   void initState() {
     super.initState();
+    Firebaseshit().listenToAllTransactions();
+    transactionsNotifier = Firebaseshit().getAllTransactionsInRealTime();
     fetchData(); // Fetch data when the widget is initialized
   }
 
@@ -100,7 +101,7 @@ class _HomePageState extends State<HomePage> {
   //   );
   // }
 
-  @override
+ @override
   Widget build(BuildContext context) {
     final filteredCategories = getFilteredCategories();
 
@@ -115,10 +116,47 @@ class _HomePageState extends State<HomePage> {
           ? const Center(child: CircularProgressIndicator())
           : Padding(
               padding: const EdgeInsets.all(15.0),
-              child: PieChartWithLegend(categories: filteredCategories),
+              child: Column(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: PieChartWithLegend(categories: filteredCategories),
+                  ),
+                  const SizedBox(height: 20),
+                  Expanded(
+                    flex: 3,
+                    child: TransactionsDisplayWidget(
+                      transactionsNotifier: transactionsNotifier,
+                    ),
+                  ),
+                ],
+              ),
             ),
     );
   }
+
+
+
+
+  // @override
+  // Widget build(BuildContext context) {
+  //   final filteredCategories = getFilteredCategories();
+
+  //   return Scaffold(
+  //     backgroundColor: Colors.amber[500],
+  //     appBar: AppBar(
+  //       title: const Text("Home Page"),
+  //       backgroundColor: Colors.amber[700],
+  //       centerTitle: true,
+  //     ),
+  //     body: isLoading
+  //         ? const Center(child: CircularProgressIndicator())
+  //         : Padding(
+  //             padding: const EdgeInsets.all(15.0),
+  //             child: PieChartWithLegend(categories: filteredCategories),
+  //           ),
+  //   );
+  // }
 
   // @override
   // Widget build(BuildContext context) {

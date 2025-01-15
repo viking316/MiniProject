@@ -24,6 +24,7 @@ class _BudgetsPage extends State<BudgetsPage> {
     firebaseshit.fetchBudgetsInRealTime();
   }
 
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,

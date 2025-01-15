@@ -439,9 +439,9 @@ class PieChartWithLegend extends StatelessWidget {
   final List<List<dynamic>> categories; // Data for the chart and legend
 
   const PieChartWithLegend({
-    Key? key,
+    super.key,
     required this.categories,
-  }) : super(key: key);
+  });
 
   /// Generates pie chart sections based on provided categories.
   List<PieChartSectionData> _generatePieChartSections() {
@@ -529,3 +529,62 @@ class PieChartWithLegend extends StatelessWidget {
 }
 
 
+// import 'package:flutter/material.dart';
+
+class TransactionsDisplayWidget extends StatelessWidget {
+  final ValueNotifier<List<List<dynamic>>> transactionsNotifier;
+
+  const TransactionsDisplayWidget({super.key, required this.transactionsNotifier});
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<List<List<dynamic>>>(
+      valueListenable: transactionsNotifier,
+      builder: (context, transactions, child) {
+        return Container(
+          padding: EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.5),
+                spreadRadius: 2,
+                blurRadius: 5,
+                offset: Offset(0, 3),
+              ),
+            ],
+          ),
+          child: transactions.isEmpty
+              ? Center(
+                  child: Text(
+                    'No transactions available',
+                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                  ),
+                )
+              : ListView.builder(
+                  itemCount: transactions.length,
+                  itemBuilder: (context, index) {
+                    final transaction = transactions[index];
+                    return Card(
+                      margin: EdgeInsets.symmetric(vertical: 8),
+                      child: ListTile(
+                        title: Text(
+                          'Category: ${transaction[5]}',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Text(
+                          'Note: ${transaction[1]}\n'
+                          'Amount: ${transaction[2]} ${transaction[3]}\n'
+                          'Date: ${transaction[4]}',
+                        ),
+                        leading: Icon(Icons.receipt_long),
+                      ),
+                    );
+                  },
+                ),
+        );
+      },
+    );
+  }
+}
