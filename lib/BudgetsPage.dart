@@ -37,8 +37,8 @@ class _BudgetsPage extends State<BudgetsPage> {
           children: [
             Padding(
               padding: const EdgeInsets.only(
-                top: kToolbarHeight + 16, // Offset for AppBar height
-                bottom: 16, // Offset for the bottom content
+                top: kToolbarHeight + 35, // Offset for AppBar height
+                bottom: 60, // Offset for the bottom content
               ),
               child: Column(
                 children: [

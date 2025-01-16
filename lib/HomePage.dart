@@ -125,7 +125,7 @@ Widget build(BuildContext context) {
     backgroundColor: Colors.grey[900],
     appBar: AppBar(
       title: const Text("Home Page"),
-      backgroundColor: const Color(0xFF2ECC71),
+      backgroundColor: const Color.fromARGB(255, 50, 44, 101),
       centerTitle: true,
     ),
     body: Stack(

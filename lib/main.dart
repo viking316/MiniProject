@@ -101,7 +101,6 @@ class MyApp extends StatefulWidget {
 }
 // import 'package:flutter/material.dart';
 // import 'dart:ui';
-
 class _MyAppState extends State<MyApp> {
   int _selectedpage = 0;
 
@@ -117,62 +116,74 @@ class _MyAppState extends State<MyApp> {
       _selectedpage = index;
     });
   }
-@override
-Widget build(BuildContext context) {
-  return MaterialApp(
-    home: Scaffold(
-      backgroundColor: Colors.grey[900], // Match your background color
-      extendBody: true, // This is important - it allows the body to extend behind the navigation bar
-      body: _pages[_selectedpage],
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.3),
-              blurRadius: 10,
-              spreadRadius: 2,
-              offset: const Offset(0, -2),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(20.0),
-            topRight: Radius.circular(20.0),
-          ),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFF1C1C3C).withOpacity(0.9),
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(20.0),
-                  topRight: Radius.circular(20.0),
-                ),
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        backgroundColor: Colors.grey[900], // Match your background color
+        extendBody: true, // This is important - it allows the body to extend behind the navigation bar
+        body: _pages[_selectedpage],
+        bottomNavigationBar: Container(
+          decoration: BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.3),
+                blurRadius: 10,
+                spreadRadius: 2,
+                offset: const Offset(0, -2),
               ),
-              child: BottomNavigationBar(
-                type: BottomNavigationBarType.fixed,
-                currentIndex: _selectedpage,
-                onTap: _updatepage,
-                backgroundColor: Colors.transparent,
-                selectedItemColor: const Color(0xFF00D1FF),
-                unselectedItemColor: const Color(0xFFA5A5C5),
-                showSelectedLabels: true,
-                showUnselectedLabels: true,
-                elevation: 0,
-                items: [
-                  _buildNavItem(Icons.line_axis_sharp, "Home", 0),
-                  _buildNavItem(Icons.production_quantity_limits_sharp, "Budgets", 1),
-                  _buildNavItem(Icons.person, "User Info", 2),
-                ],
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(20.0),
+              topRight: Radius.circular(20.0),
+            ),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1C1C3C).withOpacity(0.9),
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(20.0),
+                    topRight: Radius.circular(20.0),
+                  ),
+                ),
+                child: BottomNavigationBar(
+                  type: BottomNavigationBarType.fixed,
+                  currentIndex: _selectedpage,
+                  onTap: _updatepage,
+                  backgroundColor: Colors.transparent,
+                  selectedItemColor: const Color.fromARGB(255, 255, 255, 255),
+                  unselectedItemColor: const Color(0xFFA5A5C5),
+                  showSelectedLabels: false, // Hide selected labels
+                  showUnselectedLabels: false, // Hide unselected labels
+                  elevation: 0,
+                  items: [
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.line_axis_sharp),
+                      label: '', // Removed the label completely
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.production_quantity_limits_sharp),
+                      label: '', // Removed the label completely
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.person),
+                      label: '', // Removed the label completely
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
+// }
+
 
 BottomNavigationBarItem _buildNavItem(IconData icon, String label, int index) {
   bool isSelected = _selectedpage == index;
@@ -191,7 +202,7 @@ BottomNavigationBarItem _buildNavItem(IconData icon, String label, int index) {
     ),
     label: label,
   );
-}
+
 
 
 // // Dummy HomePage widget
@@ -214,4 +225,5 @@ BottomNavigationBarItem _buildNavItem(IconData icon, String label, int index) {
 //   }
 // }
 // print("amazing");
+}
 }
