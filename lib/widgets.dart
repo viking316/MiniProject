@@ -38,13 +38,14 @@ IconData? getIconData(String iconName) {
 }
 
 // CategoriesWidget
-class CategoriesWidget extends StatelessWidget {
+
+class CategoriesWidget extends StatefulWidget {
   final String title;
   final int curr;
   final int maxx;
   final bool border;
-  final Color backgroundColor; // New parameter for background color
-  final Color progressBarColor; // New parameter for progress bar color
+  final Color backgroundColor; // Background color for the container
+  final Color progressBarColor; // Color for the progress bar
 
   const CategoriesWidget({
     super.key,
@@ -57,17 +58,42 @@ class CategoriesWidget extends StatelessWidget {
   });
 
   @override
+  _CategoriesWidgetState createState() => _CategoriesWidgetState();
+}
+
+class _CategoriesWidgetState extends State<CategoriesWidget>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 0, milliseconds: 500), // Duration for the animation
+    );
+    _animation = Tween<double>(begin: 0, end: widget.curr / widget.maxx)
+        .animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+    _controller.forward(); // Start the animation
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final percentageValue = ((curr / maxx) * 100).clamp(0, 100);
-    final percentageText = "${percentageValue.toStringAsFixed(1)}%";
-    final trueiconn = getIconData(title);
+    final trueiconn = getIconData(widget.title);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 6.0),
       child: Container(
         height: 100,
         decoration: BoxDecoration(
-          color: backgroundColor, // Use passed background color
+          color: widget.backgroundColor, // Use passed background color
           borderRadius: BorderRadius.circular(20),
         ),
         child: Column(
@@ -80,7 +106,7 @@ class CategoriesWidget extends StatelessWidget {
               child: Row(
                 children: [
                   Text(
-                    title,
+                    widget.title,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
@@ -96,26 +122,34 @@ class CategoriesWidget extends StatelessWidget {
                 ],
               ),
             ),
-            // Progress Bar with Percentage
+            // Progress Bar with Animated Percentage
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Stack(
                 alignment: Alignment.centerLeft,
                 children: [
                   HorizontalBarChart(
-                    value: curr,
-                    maxValue: maxx,
-                    border: border,
-                    progressBarColor: progressBarColor, // Use passed color
+                    value: widget.curr,
+                    maxValue: widget.maxx,
+                    border: widget.border,
+                    progressBarColor: widget.progressBarColor, // Use passed color
                   ),
                   Center(
-                    child: Text(
-                      percentageText,
-                      style: const TextStyle(
-                        fontSize: 16, // Bigger font
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white70,
-                      ),
+                    child: AnimatedBuilder(
+                      animation: _animation,
+                      builder: (context, child) {
+                        final percentageValue = (_animation.value * 100)
+                            .clamp(0, 100)
+                            .toStringAsFixed(1);
+                        return Text(
+                          "$percentageValue%",
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white70,
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ],
@@ -127,7 +161,6 @@ class CategoriesWidget extends StatelessWidget {
     );
   }
 }
-
 
 
 // class SpendingsWidget extends StatelessWidget {
