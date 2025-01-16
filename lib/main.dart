@@ -110,6 +110,7 @@ class _MyAppState extends State<MyApp> {
   final List _pages = [
     const HomePage(),
     const BudgetsPage(),
+    const UserInfoPage(),
   ];
   // IconData apparal = FontAwesomeIcons.shirt;
   // IconData  beauty = FontAwesomeIcons.sprayCanSparkles;
@@ -130,14 +131,11 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        // ignore: avoid_print
-
         body: _pages[_selectedpage],
         bottomNavigationBar: ClipRRect(
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
             child: Container(
-              // color: const Color.fromARGB(255, 226, 10, 10).withOpacity(0.3),
               child: BottomNavigationBar(
                 type: BottomNavigationBarType.fixed,
                 currentIndex: _selectedpage,
@@ -145,11 +143,15 @@ class _MyAppState extends State<MyApp> {
                 items: const [
                   BottomNavigationBarItem(
                     icon: Icon(Icons.line_axis_sharp),
-                    label: "",
+                    label: "Home",
                   ),
                   BottomNavigationBarItem(
                     icon: Icon(Icons.production_quantity_limits_sharp),
-                    label: "",
+                    label: "Transactions",
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.person),
+                    label: "User Info", // New button for User Info page
                   ),
                 ],
               ),
