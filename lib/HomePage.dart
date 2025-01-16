@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:miniproject/Firebaseshit.dart';
@@ -56,7 +57,8 @@ class _HomePageState extends State<HomePage> {
         });
       }
     }
-    final data = await Firebaseshit().fetchBudgetsAndUserInfo(); // Combined fetch
+    final data =
+        await Firebaseshit().fetchBudgetsAndUserInfo(); // Combined fetch
     setState(() {
       cats = data['categories'];
       userName = data['name'];
@@ -75,12 +77,14 @@ class _HomePageState extends State<HomePage> {
     final filteredCats = getFilteredCategories();
 
     // Calculate total spending for the filtered categories
-    final total = filteredCats.fold<num>(0, (sum, cat) => sum + (cat[1] as num));
+    final total =
+        filteredCats.fold<num>(0, (sum, cat) => sum + (cat[1] as num));
 
     // Convert filtered data into PieChart sections based on the total
     return filteredCats.map((category) {
       final String label = category[0]; // Category name
-      final double value = category[1].toDouble(); // Ensure the value is a double
+      final double value =
+          category[1].toDouble(); // Ensure the value is a double
       final double percentage = (value / total) * 100; // Calculate percentage
 
       return PieChartSectionData(
@@ -88,7 +92,8 @@ class _HomePageState extends State<HomePage> {
         color: Colors.primaries[
             filteredCats.indexOf(category) % Colors.primaries.length],
         radius: 80,
-        title: '${percentage.toStringAsFixed(1)}%', // Display percentage as text
+        title:
+            '${percentage.toStringAsFixed(1)}%', // Display percentage as text
         titleStyle: const TextStyle(
           fontSize: 10, // Reduced font size
           fontWeight: FontWeight.bold,
@@ -133,7 +138,8 @@ class _HomePageState extends State<HomePage> {
                         label,
                         style: const TextStyle(
                             fontSize: 14, fontWeight: FontWeight.w500),
-                        overflow: TextOverflow.ellipsis, // Handles long text gracefully
+                        overflow: TextOverflow
+                            .ellipsis, // Handles long text gracefully
                       ),
                     ),
                   ],
@@ -145,6 +151,7 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+
 @override
 Widget build(BuildContext context) {
   return Scaffold(
@@ -174,19 +181,24 @@ Widget build(BuildContext context) {
                         Text(
                           'Name: $userName',
                           style: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white),
                         ),
                         Text(
                           'Saved Amount: ₹$savedAmount',
-                          style: const TextStyle(fontSize: 16, color: Colors.white),
+                          style: const TextStyle(
+                              fontSize: 16, color: Colors.white),
                         ),
                         Text(
                           'Total Points: $totalPoints',
-                          style: const TextStyle(fontSize: 16, color: Colors.white),
+                          style: const TextStyle(
+                              fontSize: 16, color: Colors.white),
                         ),
                         Text(
                           'Total Spending: ₹$totalSpending',
-                          style: const TextStyle(fontSize: 16, color: Colors.white),
+                          style: const TextStyle(
+                              fontSize: 16, color: Colors.white),
                         ),
                       ],
                     ),
@@ -229,16 +241,23 @@ Widget build(BuildContext context) {
                 const SizedBox(height: 20),
 
                 // Transaction Line Chart
-                SizedBox(
-                  height: 350, // Set the height for the line chart
-                  child: TransactionChartPage(  transformedTransactionsNotifier: firebaseService.transformedTransactionsNotifier,
-),
-                ),
+                // SizedBox(
+                //   height: 350, // Set the height for the line chart
+                //   child: TransactionChartPage(
+                //     transformedTransactionsNotifier:
+                //         firebaseService.transformedTransactionsNotifier,
+                //   ),
+                // ),
               ],
             ),
           ),
+    // Add the Floating Action Button
+    floatingActionButton: AddTransactionFAB(
+      firestore: FirebaseFirestore.instance,
+    ),
   );
 }
+
 
   // @override
   // void dispose() {

@@ -1,4 +1,5 @@
 import 'dart:math'; // Add this import for min and max functions
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -534,11 +535,13 @@ class _TransactionChartPageState extends State<TransactionChartPage> {
         visibleSpots.map((spot) => spot.y).reduce((a, b) => a > b ? a : b);
     final double minY =
         visibleSpots.map((spot) => spot.y).reduce((a, b) => a < b ? a : b);
-    final double yPadding = (maxY - minY) * 0.1; // Add 10% padding to Y-axis
+    final double yPadding = (maxY - minY) * 0.1;
 
     return Column(
+      mainAxisSize: MainAxisSize.min, // Add this to prevent expansion
       children: [
-        Expanded(
+        SizedBox(
+          height: 250, // Fixed height for the chart
           child: LineChart(
             LineChartData(
               gridData: FlGridData(show: false),
@@ -553,7 +556,10 @@ class _TransactionChartPageState extends State<TransactionChartPage> {
                   sideTitles: SideTitles(
                     showTitles: true,
                     reservedSize: 35,
-                    interval: maxX - minX, // Only show first and last X labels
+                    interval: max(
+                        86400000,
+                        (maxX - minX) /
+                            2),
                     getTitlesWidget: (value, meta) {
                       final date =
                           DateTime.fromMillisecondsSinceEpoch(value.toInt());
@@ -564,7 +570,7 @@ class _TransactionChartPageState extends State<TransactionChartPage> {
                               ? '${date.month}/${date.year}'
                               : '',
                           style: const TextStyle(
-                            fontSize: 7.2, // Reduced by 40%
+                            fontSize: 7.2,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -583,8 +589,8 @@ class _TransactionChartPageState extends State<TransactionChartPage> {
               lineBarsData: [
                 LineChartBarData(
                   spots: visibleSpots,
-                  isCurved: true, // Enable curving
-                  curveSmoothness: 0.4, // Increase curvature by 15% (default is ~0.25)
+                  isCurved: true,
+                  curveSmoothness: 0.4,
                   color: Colors.blue,
                   barWidth: 3,
                   isStrokeCapRound: true,
@@ -621,43 +627,41 @@ class _TransactionChartPageState extends State<TransactionChartPage> {
               ),
               minX: minX,
               maxX: maxX,
-              minY: minY - yPadding, // Apply padding to Y-axis
-              maxY: maxY + yPadding, // Apply padding to Y-axis
+              minY: minY - yPadding,
+              maxY: maxY + yPadding,
               clipData: FlClipData.all(),
             ),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.only(top: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _buildNavigationButton(
-                icon: Icons.arrow_back,
-                onPressed: () => setState(() {
-                  if (currentPageIndex > 0) currentPageIndex--;
-                }),
-                isEnabled: currentPageIndex > 0,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Text(
-                  'Page ${currentPageIndex + 1} of ${monthlySpots.length}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w500,
-                  ),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _buildNavigationButton(
+              icon: Icons.arrow_back,
+              onPressed: () => setState(() {
+                if (currentPageIndex > 0) currentPageIndex--;
+              }),
+              isEnabled: currentPageIndex > 0,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                'Page ${currentPageIndex + 1} of ${monthlySpots.length}',
+                style: const TextStyle(
+                  fontWeight: FontWeight.w500,
                 ),
               ),
-              _buildNavigationButton(
-                icon: Icons.arrow_forward,
-                onPressed: () => setState(() {
-                  if (currentPageIndex < monthlySpots.length - 1)
-                    currentPageIndex++;
-                }),
-                isEnabled: currentPageIndex < monthlySpots.length - 1,
-              ),
-            ],
-          ),
+            ),
+            _buildNavigationButton(
+              icon: Icons.arrow_forward,
+              onPressed: () => setState(() {
+                if (currentPageIndex < monthlySpots.length - 1)
+                  currentPageIndex++;
+              }),
+              isEnabled: currentPageIndex < monthlySpots.length - 1,
+            ),
+          ],
         ),
       ],
     );
@@ -665,58 +669,297 @@ class _TransactionChartPageState extends State<TransactionChartPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: MediaQuery.of(context).size.width * 0.95, // Increased width
-      height: 350,
-      padding: const EdgeInsets.all(16),
-      child: ValueListenableBuilder<List<List<dynamic>>>(
-        valueListenable: widget.transformedTransactionsNotifier,
-        builder: (context, transactions, child) {
-          if (transactions.isEmpty) {
-            return const Center(child: Text("No data available"));
-          }
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Container(
+          constraints: BoxConstraints(
+            maxHeight: constraints.maxHeight,
+            maxWidth: constraints.maxWidth,
+          ),
+          child: ValueListenableBuilder<List<List<dynamic>>>(
+            valueListenable: widget.transformedTransactionsNotifier,
+            builder: (context, transactions, child) {
+              if (transactions.isEmpty) {
+                return const Center(child: Text("No data available"));
+              }
 
-          final Map<int, List<FlSpot>> monthlySpots = {};
+              final Map<int, List<FlSpot>> monthlySpots = {};
 
-          for (var transaction in transactions) {
-            if (transaction.length < 4 ||
-                transaction[1] == null ||
-                transaction[3] == null) {
-              continue;
-            }
+              for (var transaction in transactions) {
+                if (transaction.length < 4 ||
+                    transaction[1] == null ||
+                    transaction[3] == null) {
+                  continue;
+                }
 
-            final date = transaction[3] as DateTime;
-            final monthKey = date.year * 100 + date.month;
-            final amount = transaction[1] is int
-                ? (transaction[1] as int).toDouble()
-                : transaction[1] as double;
+                final date = transaction[3] as DateTime;
+                final monthKey = date.year * 100 + date.month;
+                final amount = transaction[1] is int
+                    ? (transaction[1] as int).toDouble()
+                    : transaction[1] as double;
 
-            monthlySpots.putIfAbsent(monthKey, () => []);
-            monthlySpots[monthKey]!.add(
-              FlSpot(date.millisecondsSinceEpoch.toDouble(), amount),
-            );
-          }
+                monthlySpots.putIfAbsent(monthKey, () => []);
+                monthlySpots[monthKey]!.add(
+                  FlSpot(date.millisecondsSinceEpoch.toDouble(), amount),
+                );
+              }
 
-          final List<List<FlSpot>> paginatedSpots = monthlySpots.entries
-              .map((entry) => entry.value)
-              .toList()
-              .map((spotList) {
+              final List<List<FlSpot>> paginatedSpots = monthlySpots.entries
+                  .map((entry) => entry.value)
+                  .toList()
+                  .map((spotList) {
                 spotList.sort((a, b) => a.x.compareTo(b.x));
                 return spotList;
-              })
-              .toList()
-            ..sort((a, b) {
-              if (a.isEmpty || b.isEmpty) return 0;
-              return a.first.x.compareTo(b.first.x); // Chronological order
-            });
+              }).toList()
+                ..sort((a, b) {
+                  if (a.isEmpty || b.isEmpty) return 0;
+                  return a.first.x.compareTo(b.first.x);
+                });
 
-          if (paginatedSpots.isEmpty) {
-            return const Center(child: Text("No data to display"));
-          }
+              if (paginatedSpots.isEmpty) {
+                return const Center(child: Text("No data to display"));
+              }
 
-          return _buildChart(paginatedSpots);
-        },
-      ),
+              return SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: _buildChart(paginatedSpots),
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+}
+class AddTransactionFAB extends StatelessWidget {
+  final FirebaseFirestore firestore;
+
+  const AddTransactionFAB({Key? key, required this.firestore}) : super(key: key);
+
+  void _showAddTransactionDialog(BuildContext context) {
+    final TextEditingController idController = TextEditingController();
+    final TextEditingController amountController = TextEditingController();
+    final TextEditingController noteController = TextEditingController();
+    String selectedCategory = 'Allowance';
+    String selectedType = 'Income';
+    bool flag = false;
+    DateTime selectedDate = DateTime.now();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+          child: Dialog(
+            child: Container(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.8,
+              ),
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).viewInsets.bottom,
+                    left: 16,
+                    right: 16,
+                    top: 16,
+                  ),
+                  child: StatefulBuilder(
+                    builder: (BuildContext context, StateSetter setState) {
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const Text(
+                            "Add Transaction",
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // ID Field
+                          TextField(
+                            controller: idController,
+                            decoration: const InputDecoration(
+                              labelText: "Transaction ID",
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+
+                          // Amount Field
+                          TextField(
+                            controller: amountController,
+                            keyboardType: TextInputType.number,
+                            decoration: const InputDecoration(
+                              labelText: "Amount",
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+
+                          // Note Field
+                          TextField(
+                            controller: noteController,
+                            decoration: const InputDecoration(
+                              labelText: "Note",
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+
+                          // Category Dropdown
+                          DropdownButtonFormField<String>(
+                            value: selectedCategory,
+                            onChanged: (value) {
+                              setState(() => selectedCategory = value!);
+                            },
+                            items: [
+                              'Allowance',
+                              'Apparel',
+                              'Beauty',
+                              'Education',
+                              'Entertainment',
+                              'Food',
+                              'Gift',
+                              'Groceries',
+                              'Household',
+                              'Other',
+                              'Petty cash',
+                              'Salary',
+                              'Self-development',
+                              'Social Life',
+                              'Transportation'
+                            ]
+                                .map((category) => DropdownMenuItem(
+                                      value: category,
+                                      child: Text(category),
+                                    ))
+                                .toList(),
+                            decoration: const InputDecoration(
+                              labelText: "Category",
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+
+                          // Type Dropdown
+                          DropdownButtonFormField<String>(
+                            value: selectedType,
+                            onChanged: (value) {
+                              setState(() => selectedType = value!);
+                            },
+                            items: ['Income', 'Expense']
+                                .map((type) => DropdownMenuItem(
+                                      value: type,
+                                      child: Text(type),
+                                    ))
+                                .toList(),
+                            decoration: const InputDecoration(
+                              labelText: "Type",
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+
+                          // Date Picker
+                          OutlinedButton.icon(
+                            onPressed: () async {
+                              final pickedDate = await showDatePicker(
+                                context: context,
+                                initialDate: selectedDate,
+                                firstDate: DateTime(2000),
+                                lastDate: DateTime.now(),
+                              );
+                              if (pickedDate != null) {
+                                setState(() => selectedDate = pickedDate);
+                              }
+                            },
+                            icon: const Icon(Icons.calendar_today),
+                            label: Text(
+                              "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+
+                          // Flag Switch
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text("Flag"),
+                              Switch(
+                                value: flag,
+                                onChanged: (value) {
+                                  setState(() => flag = value);
+                                },
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Action Buttons
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(),
+                                child: const Text("Cancel"),
+                              ),
+                              const SizedBox(width: 8),
+                              ElevatedButton(
+                                onPressed: () {
+                                  final docId = idController.text.isNotEmpty
+                                      ? idController.text
+                                      : "t${DateTime.now().millisecondsSinceEpoch}";
+
+                                  final transactionData = {
+                                    'amount':
+                                        double.tryParse(amountController.text) ??
+                                            0.0,
+                                    'note': noteController.text,
+                                    'type': selectedType,
+                                    'flag': flag ? 1 : 0,
+                                    'date': selectedDate,
+                                  };
+
+                                  firestore
+                                      .collection('users')
+                                      .doc('user1')
+                                      .collection('categoriesdb')
+                                      .doc(selectedCategory)
+                                      .collection('Transactions')
+                                      .doc(docId)
+                                      .set(transactionData);
+
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text("Add"),
+                              ),
+                            ],
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FloatingActionButton(
+      onPressed: () => _showAddTransactionDialog(context),
+      backgroundColor: const Color(0xFF2ECC71),
+      child: const Icon(Icons.add, color: Colors.white),
     );
   }
 }
