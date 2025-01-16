@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:miniproject/DatabaseFetching.dart';
 import 'package:miniproject/Firebaseshit.dart';
 import 'package:miniproject/widgets.dart';
 import 'TransactionsPage.dart'; // Import the new transactions page

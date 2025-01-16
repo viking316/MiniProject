@@ -231,7 +231,8 @@ Widget build(BuildContext context) {
                 // Transaction Line Chart
                 SizedBox(
                   height: 350, // Set the height for the line chart
-                  child: getTransactionLineChart(firebaseService.transformedTransactionsNotifier),
+                  child: TransactionChartPage(  transformedTransactionsNotifier: firebaseService.transformedTransactionsNotifier,
+),
                 ),
               ],
             ),

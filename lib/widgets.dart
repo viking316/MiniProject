@@ -1,3 +1,4 @@
+import 'dart:math'; // Add this import for min and max functions
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -482,127 +483,240 @@ class PieChartWithLegend extends StatelessWidget {
   }
 }
 
-
 // import React from 'react';
 // import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 // import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 // import 'package:fl_chart/fl_chart.dart';
 // import 'package:flutter/material.dart';
-Widget getTransactionLineChart(ValueNotifier<List<List<dynamic>>> transformedTransactionsNotifier) {
-  return Container(
-    height: 300,
-    padding: const EdgeInsets.all(16),
-    child: ValueListenableBuilder<List<List<dynamic>>>(
-      valueListenable: transformedTransactionsNotifier,
-      builder: (context, transactions, child) {
-        // Handle empty transactions
-        if (transactions.isEmpty) {
-          return const Center(child: Text("No data available"));
-        }
+class TransactionChartPage extends StatefulWidget {
+  final ValueNotifier<List<List<dynamic>>> transformedTransactionsNotifier;
 
-        final Map<DateTime, double> dailyTotals = {};
+  const TransactionChartPage({
+    Key? key,
+    required this.transformedTransactionsNotifier,
+  }) : super(key: key);
 
-        // Process transactions to group amounts by date
-        for (var transaction in transactions) {
-          if (transaction.length < 4 || transaction[1] == null || transaction[3] == null) {
-            continue; // Skip invalid entries
-          }
+  @override
+  State<TransactionChartPage> createState() => _TransactionChartPageState();
+}
+class _TransactionChartPageState extends State<TransactionChartPage> {
+  int currentPageIndex = 0;
 
-          // Extract the date and amount
-          final date = DateTime(
-            (transaction[3] as DateTime).year,
-            (transaction[3] as DateTime).month,
-            (transaction[3] as DateTime).day,
-          );
-          final amount = transaction[1] is int
-              ? (transaction[1] as int).toDouble()
-              : transaction[1] as double;
+  Widget _buildNavigationButton({
+    required IconData icon,
+    required VoidCallback onPressed,
+    required bool isEnabled,
+  }) {
+    return IconButton(
+      icon: Icon(icon),
+      onPressed: isEnabled ? onPressed : null,
+      style: IconButton.styleFrom(
+        backgroundColor: isEnabled
+            ? Colors.blue.withOpacity(0.1)
+            : Colors.grey.withOpacity(0.1),
+        foregroundColor: isEnabled ? Colors.blue : Colors.grey,
+      ),
+    );
+  }
 
-          // Sum amounts for the same date
-          dailyTotals[date] = (dailyTotals[date] ?? 0.0) + amount;
-        }
+  Widget _buildChart(List<List<FlSpot>> monthlySpots) {
+    final List<FlSpot> visibleSpots = monthlySpots[currentPageIndex];
 
-        // Convert dailyTotals to a sorted list of spots
-        final List<FlSpot> spots = dailyTotals.entries
-            .map((entry) => FlSpot(
-                  entry.key.millisecondsSinceEpoch.toDouble(),
-                  entry.value,
-                ))
-            .toList()
-          ..sort((a, b) => a.x.compareTo(b.x));
+    if (visibleSpots.isEmpty) {
+      return const Center(child: Text("No data to display"));
+    }
 
-        // Handle empty spots
-        if (spots.isEmpty) {
-          return const Center(child: Text("No data to display"));
-        }
+    final minX = visibleSpots.first.x;
+    final maxX = visibleSpots.last.x;
 
-        // Render the line chart
-        return LineChart(
-          LineChartData(
-            gridData: FlGridData(
-              show: true,
-              drawVerticalLine: true,
-            ),
-            titlesData: FlTitlesData(
-              leftTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: true,
-                  reservedSize: 40,
-                  getTitlesWidget: (value, meta) {
-                    return Text('\$${value.toInt()}');
+    final double maxY =
+        visibleSpots.map((spot) => spot.y).reduce((a, b) => a > b ? a : b);
+    final double minY =
+        visibleSpots.map((spot) => spot.y).reduce((a, b) => a < b ? a : b);
+    final double yPadding = (maxY - minY) * 0.1; // Add 10% padding to Y-axis
+
+    return Column(
+      children: [
+        Expanded(
+          child: LineChart(
+            LineChartData(
+              gridData: FlGridData(show: false),
+              titlesData: FlTitlesData(
+                leftTitles: AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                rightTitles: AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 35,
+                    interval: maxX - minX, // Only show first and last X labels
+                    getTitlesWidget: (value, meta) {
+                      final date =
+                          DateTime.fromMillisecondsSinceEpoch(value.toInt());
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Text(
+                          value == minX || value == maxX
+                              ? '${date.month}/${date.year}'
+                              : '',
+                          style: const TextStyle(
+                            fontSize: 7.2, // Reduced by 40%
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                topTitles: AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+              ),
+              borderData: FlBorderData(
+                show: true,
+                border: Border.all(color: Colors.grey.withOpacity(0.2)),
+              ),
+              lineBarsData: [
+                LineChartBarData(
+                  spots: visibleSpots,
+                  isCurved: true, // Enable curving
+                  curveSmoothness: 0.4, // Increase curvature by 15% (default is ~0.25)
+                  color: Colors.blue,
+                  barWidth: 3,
+                  isStrokeCapRound: true,
+                  dotData: FlDotData(show: false),
+                  belowBarData: BarAreaData(
+                    show: true,
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.blue.withOpacity(0.25),
+                        Colors.blue.withOpacity(0.05),
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                  ),
+                ),
+              ],
+              lineTouchData: LineTouchData(
+                touchTooltipData: LineTouchTooltipData(
+                  getTooltipItems: (touchedSpots) {
+                    return touchedSpots.map((spot) {
+                      final date =
+                          DateTime.fromMillisecondsSinceEpoch(spot.x.toInt());
+                      return LineTooltipItem(
+                        '${date.month}/${date.day}/${date.year}\n\$${spot.y.toStringAsFixed(2)}',
+                        const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      );
+                    }).toList();
                   },
                 ),
               ),
-              bottomTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: true,
-                  reservedSize: 30,
-                  getTitlesWidget: (value, meta) {
-                    final date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
-                    return Text(
-                      '${date.day}/${date.month}',
-                      style: const TextStyle(fontSize: 10),
-                      overflow: TextOverflow.ellipsis,
-                    );
-                  },
-                ),
-              ),
-            ),
-            borderData: FlBorderData(
-              show: true,
-              border: Border.all(color: Colors.grey.withOpacity(0.3)),
-            ),
-            lineBarsData: [
-              LineChartBarData(
-                spots: spots,
-                isCurved: true,
-                color: Colors.blue,
-                barWidth: 3,
-                isStrokeCapRound: true,
-                dotData: FlDotData(show: true),
-                belowBarData: BarAreaData(
-                  show: true,
-                  color: Colors.blue.withOpacity(0.2),
-                ),
-              ),
-            ],
-            lineTouchData: LineTouchData(
-              touchTooltipData: LineTouchTooltipData(
-                getTooltipItems: (touchedSpots) {
-                  return touchedSpots.map((spot) {
-                    final date = DateTime.fromMillisecondsSinceEpoch(spot.x.toInt());
-                    return LineTooltipItem(
-                      '${date.day}/${date.month}/${date.year}\n\$${spot.y.toStringAsFixed(2)}',
-                      const TextStyle(color: Colors.white),
-                    );
-                  }).toList();
-                },
-              ),
+              minX: minX,
+              maxX: maxX,
+              minY: minY - yPadding, // Apply padding to Y-axis
+              maxY: maxY + yPadding, // Apply padding to Y-axis
+              clipData: FlClipData.all(),
             ),
           ),
-        );
-      },
-    ),
-  );
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildNavigationButton(
+                icon: Icons.arrow_back,
+                onPressed: () => setState(() {
+                  if (currentPageIndex > 0) currentPageIndex--;
+                }),
+                isEnabled: currentPageIndex > 0,
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  'Page ${currentPageIndex + 1} of ${monthlySpots.length}',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              _buildNavigationButton(
+                icon: Icons.arrow_forward,
+                onPressed: () => setState(() {
+                  if (currentPageIndex < monthlySpots.length - 1)
+                    currentPageIndex++;
+                }),
+                isEnabled: currentPageIndex < monthlySpots.length - 1,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: MediaQuery.of(context).size.width * 0.95, // Increased width
+      height: 350,
+      padding: const EdgeInsets.all(16),
+      child: ValueListenableBuilder<List<List<dynamic>>>(
+        valueListenable: widget.transformedTransactionsNotifier,
+        builder: (context, transactions, child) {
+          if (transactions.isEmpty) {
+            return const Center(child: Text("No data available"));
+          }
+
+          final Map<int, List<FlSpot>> monthlySpots = {};
+
+          for (var transaction in transactions) {
+            if (transaction.length < 4 ||
+                transaction[1] == null ||
+                transaction[3] == null) {
+              continue;
+            }
+
+            final date = transaction[3] as DateTime;
+            final monthKey = date.year * 100 + date.month;
+            final amount = transaction[1] is int
+                ? (transaction[1] as int).toDouble()
+                : transaction[1] as double;
+
+            monthlySpots.putIfAbsent(monthKey, () => []);
+            monthlySpots[monthKey]!.add(
+              FlSpot(date.millisecondsSinceEpoch.toDouble(), amount),
+            );
+          }
+
+          final List<List<FlSpot>> paginatedSpots = monthlySpots.entries
+              .map((entry) => entry.value)
+              .toList()
+              .map((spotList) {
+                spotList.sort((a, b) => a.x.compareTo(b.x));
+                return spotList;
+              })
+              .toList()
+            ..sort((a, b) {
+              if (a.isEmpty || b.isEmpty) return 0;
+              return a.first.x.compareTo(b.first.x); // Chronological order
+            });
+
+          if (paginatedSpots.isEmpty) {
+            return const Center(child: Text("No data to display"));
+          }
+
+          return _buildChart(paginatedSpots);
+        },
+      ),
+    );
+  }
 }
