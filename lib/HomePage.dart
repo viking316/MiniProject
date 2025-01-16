@@ -137,46 +137,71 @@ class _HomePageState extends State<HomePage> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // User Info Section
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const UserInfoPage(),
-                        ),
-                      );
-                    },
-                    child: Card(
-                      elevation: 8,
-                      margin: const EdgeInsets.only(bottom: 20),
-                      color: Colors.grey[850],
-                      child: Padding(
-                        padding: const EdgeInsets.all(15),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Name: $userName',
-                              style: const TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-                            ),
-                            Text(
-                              'Saved Amount: ₹$savedAmount',
-                              style: const TextStyle(fontSize: 16, color: Colors.white),
-                            ),
-                            Text(
-                              'Total Points: $totalPoints',
-                              style: const TextStyle(fontSize: 16, color: Colors.white),
-                            ),
-                            Text(
-                              'Total Spending: ₹$totalSpending',
-                              style: const TextStyle(fontSize: 16, color: Colors.white),
-                            ),
-                          ],
-                        ),
-                      ),
+                  // User Info Section
+GestureDetector(
+  onTap: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const UserInfoPage(),
+      ),
+    );
+  },
+  child: Card(
+    elevation: 8,
+    margin: const EdgeInsets.only(bottom: 20),
+    color: Colors.grey[850],
+    child: Padding(
+      padding: const EdgeInsets.all(15),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Name: $userName',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              Row(
+                children: [
+                  Text(
+                    '$totalPoints',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
                   ),
+                  const SizedBox(width: 5),
+                  const Icon(
+                    Icons.monetization_on, // Yellow coin icon
+                    color: Colors.yellow,
+                    size: 20,
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'Saved Amount: ₹$savedAmount',
+            style: const TextStyle(fontSize: 16, color: Colors.white),
+          ),
+          Text(
+            'Total Spending: ₹$totalSpending',
+            style: const TextStyle(fontSize: 16, color: Colors.white),
+          ),
+        ],
+      ),
+    ),
+  ),
+),
+
                   // Row for Pie Chart and Legend
                   Expanded(
                     child: Row(
