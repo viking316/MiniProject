@@ -1,9 +1,148 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fl_chart/fl_chart.dart';
+import 'dart:math' show pi, sin, cos;
 import 'package:miniproject/Firebaseshit.dart';
 import 'package:miniproject/widgets.dart';
 
+// Custom Pie Chart Data Class
+class PieChartData {
+  final double value;
+  final Color color;
+  final String label;
+
+  PieChartData({
+    required this.value,
+    required this.color,
+    required this.label,
+  });
+}
+
+// Custom Animated Pie Chart Widget
+class AnimatedPieChart extends StatefulWidget {
+  final List<PieChartData> data;
+  final double size;
+  final Duration duration;
+
+  const AnimatedPieChart({
+    super.key,
+    required this.data,
+    this.size = 200,
+    this.duration = const Duration(milliseconds: 2000),
+  });
+
+  @override
+  State<AnimatedPieChart> createState() => _AnimatedPieChartState();
+}
+
+class _AnimatedPieChartState extends State<AnimatedPieChart> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: widget.duration,
+      vsync: this,
+    );
+
+    _animation = Tween<double>(
+      begin: 0.0,
+      end: 2 * pi,
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    ));
+
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _animation,
+      builder: (context, child) {
+        return CustomPaint(
+          size: Size(widget.size, widget.size),
+          painter: PieChartPainter(
+            data: widget.data,
+            progress: _animation.value,
+          ),
+        );
+      },
+    );
+  }
+}
+
+// Custom Pie Chart Painter
+class PieChartPainter extends CustomPainter {
+  final List<PieChartData> data;
+  final double progress;
+
+  PieChartPainter({
+    required this.data,
+    required this.progress,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2;
+    final total = data.fold<double>(0, (sum, item) => sum + item.value);
+    
+    double startAngle = -pi / 2; // Start from the top
+    
+    for (var item in data) {
+      final sweepAngle = (item.value / total) * 2 * pi;
+      final currentEndAngle = startAngle + sweepAngle;
+      
+      if (startAngle < progress) {
+        final paint = Paint()
+          ..color = item.color
+          ..style = PaintingStyle.fill;
+
+        final currentSweepAngle = currentEndAngle <= progress 
+            ? sweepAngle 
+            : progress - startAngle;
+
+        canvas.drawArc(
+          Rect.fromCircle(center: center, radius: radius),
+          startAngle,
+          currentSweepAngle,
+          true,
+          paint,
+        );
+      }
+      
+      startAngle = currentEndAngle;
+    }
+
+    // Draw center circle
+    final centerPaint = Paint()
+      ..color = Colors.grey[900]!
+      ..style = PaintingStyle.fill;
+    
+    canvas.drawCircle(
+      center,
+      radius * 0.3,
+      centerPaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(PieChartPainter oldDelegate) {
+    return oldDelegate.progress != progress;
+  }
+}
+
+
+// Main HomePage Widget
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -11,7 +150,7 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
   List<List<dynamic>> cats = [];
   bool isLoading = true;
   final Firebaseshit firebaseService = Firebaseshit();
@@ -20,13 +159,47 @@ class _HomePageState extends State<HomePage> {
   int savedAmount = 0;
   int totalPoints = 0;
   int totalSpending = 0;
+  
+  // Animation controllers
+  late AnimationController _controller;
+  late Animation<double> _cardAnimation;
+  late Animation<double> _legendAnimation;
 
   @override
   void initState() {
     super.initState();
+    
+    // Initialize animation controller
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    );
+
+    // Card slide-in and fade animation
+    _cardAnimation = Tween<double>(begin: -200, end: 0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.0, 0.5, curve: Curves.easeOut),
+      ),
+    );
+
+    // Legend fade-in animation
+    _legendAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.6, 1.0, curve: Curves.easeIn),
+      ),
+    );
+
     firebaseService.listenToAllTransactions();
     firebaseService.listenToAllTransactionsSimplified();
     fetchData();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   Future<void> fetchData() async {
@@ -41,6 +214,7 @@ class _HomePageState extends State<HomePage> {
           totalSpending = data['total_spending'];
           isLoading = false;
         });
+        _controller.forward();
       }
     } catch (error) {
       if (mounted) {
@@ -55,67 +229,69 @@ class _HomePageState extends State<HomePage> {
     return cats.where((category) => !exclusions.contains(category[0])).toList();
   }
 
-  List<PieChartSectionData> generatePieChartSections() {
-    final filteredCats = getFilteredCategories();
-    final total = filteredCats.fold<num>(0, (sum, cat) => sum + (cat[1] as num));
-    return filteredCats.map((category) {
-      final String label = category[0];
-      final double value = category[1].toDouble();
-      final double percentage = (value / total) * 100;
-      return PieChartSectionData(
-        value: percentage,
-        color: Colors.primaries[filteredCats.indexOf(category) % Colors.primaries.length],
-        radius: 80,
-        title: '${percentage.toStringAsFixed(1)}%',
-        titleStyle: const TextStyle(
-          fontSize: 10,
-          fontWeight: FontWeight.bold,
-          color: Colors.black,
-        ),
-      );
-    }).toList();
-  }
-
   Widget buildScrollableLegend() {
     final filteredCats = getFilteredCategories();
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: Colors.black, width: 2),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      padding: const EdgeInsets.all(10),
-      child: SizedBox(
-        height: 150,
-        child: SingleChildScrollView(
-          child: Column(
-            children: List.generate(filteredCats.length, (index) {
-              final category = filteredCats[index];
-              final String label = category[0];
-              final Color color = Colors.primaries[index % Colors.primaries.length];
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 5.0),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 12,
-                      height: 12,
-                      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        label,
-                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-                        overflow: TextOverflow.ellipsis,
+    return FadeTransition(
+      opacity: _legendAnimation,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(color: Colors.black, width: 2),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        padding: const EdgeInsets.all(10),
+        child: SizedBox(
+          height: 150,
+          child: SingleChildScrollView(
+            child: Column(
+              children: List.generate(filteredCats.length, (index) {
+                final category = filteredCats[index];
+                final String label = category[0];
+                final Color color = Colors.primaries[index % Colors.primaries.length];
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 5.0),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 12,
+                        height: 12,
+                        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
                       ),
-                    ),
-                  ],
-                ),
-              );
-            }),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          label,
+                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+            ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget buildPieChart() {
+    final filteredCats = getFilteredCategories();
+    final chartData = filteredCats.map((category) {
+      return PieChartData(
+        value: category[1].toDouble(),
+        color: Colors.primaries[filteredCats.indexOf(category) % Colors.primaries.length],
+        label: category[0],
+      );
+    }).toList();
+
+    return SizedBox(
+      height: 300,
+      child: AnimatedPieChart(
+        data: chartData,
+        size: 300,
+        duration: const Duration(milliseconds: 2000),
       ),
     );
   }
@@ -131,108 +307,116 @@ class _HomePageState extends State<HomePage> {
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // User Info Section
-                  // User Info Section
-GestureDetector(
-  onTap: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const UserInfoPage(),
-      ),
-    );
-  },
-  child: Card(
-    elevation: 8,
-    margin: const EdgeInsets.only(bottom: 20),
-    color: Colors.grey[850],
-    child: Padding(
-      padding: const EdgeInsets.all(15),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Name: $userName',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              Row(
-                children: [
-                  Text(
-                    '$totalPoints',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(width: 5),
-                  const Icon(
-                    Icons.monetization_on, // Yellow coin icon
-                    color: Colors.yellow,
-                    size: 20,
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Text(
-            'Saved Amount: ₹$savedAmount',
-            style: const TextStyle(fontSize: 16, color: Colors.white),
-          ),
-          Text(
-            'Total Spending: ₹$totalSpending',
-            style: const TextStyle(fontSize: 16, color: Colors.white),
-          ),
-        ],
-      ),
-    ),
-  ),
-),
-
-                  // Row for Pie Chart and Legend
-                  Expanded(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          flex: 2,
-                          child: Column(
-                            children: [
-                              Expanded(
-                                child: PieChart(
-                                  PieChartData(
-                                    sections: generatePieChartSections(),
-                                    sectionsSpace: 2,
-                                    centerSpaceRadius: 40,
+          : AnimatedBuilder(
+              animation: _controller,
+              builder: (context, child) {
+                return Padding(
+                  padding: const EdgeInsets.all(15.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Transform.translate(
+                        offset: Offset(_cardAnimation.value, 0),
+                        child: FadeTransition(
+                          opacity: _controller,
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const UserInfoPage(),
+                                ),
+                              );
+                            },
+                            child: Hero(
+                              tag: 'userInfoCard',
+                              child: Card(
+                                elevation: 8,
+                                margin: const EdgeInsets.only(bottom: 20),
+                                color: Colors.grey[850],
+                                child: Padding(
+                                  padding: const EdgeInsets.all(15),
+                                  child: Stack(
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Name: $userName',
+                                            style: const TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 10),
+                                          Text(
+                                            'Saved Amount: ₹$savedAmount',
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 10),
+                                          Text(
+                                            'Total Spending: ₹$totalSpending',
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Positioned(
+                                        top: 0,
+                                        right: 0,
+                                        child: Row(
+                                          children: [
+                                            Text(
+                                              'Total Points: $totalPoints',
+                                              style: const TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 5),
+                                            const Icon(
+                                              Icons.monetization_on,
+                                              color: Colors.yellow,
+                                              size: 20,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
-                            ],
+                            ),
                           ),
                         ),
-                        const SizedBox(width: 20),
-                        Expanded(
-                          flex: 1,
-                          child: buildScrollableLegend(),
+                      ),
+                      Expanded(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: buildPieChart(),
+                            ),
+                            const SizedBox(width: 20),
+                            Expanded(
+                              flex: 1,
+                              child: buildScrollableLegend(),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                );
+              },
             ),
       floatingActionButton: AddTransactionFAB(
         firestore: FirebaseFirestore.instance,
