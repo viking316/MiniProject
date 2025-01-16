@@ -37,7 +37,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
     if (date is String) {
       return date;
     } else if (date is DateTime) {
-      return '${date.day}/${date.month}/${date.year}';
+      return '${date.day}/${date.month}/${date.year} \n ${date.hour}:${date.minute}';
     } else if (date is int) {
       DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(date * 1000);
       return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
@@ -105,7 +105,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Amount: \$${amount.toStringAsFixed(2)}'),
+                    Text('Amount: \₹${amount.toStringAsFixed(2)}'),
                     Text('Type: $type'),
                   ],
                 ),

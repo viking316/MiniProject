@@ -43,6 +43,8 @@ class CategoriesWidget extends StatelessWidget {
   final int curr;
   final int maxx;
   final bool border;
+  final Color backgroundColor; // New parameter for background color
+  final Color progressBarColor; // New parameter for progress bar color
 
   const CategoriesWidget({
     super.key,
@@ -50,14 +52,14 @@ class CategoriesWidget extends StatelessWidget {
     required this.curr,
     required this.maxx,
     required this.border,
+    required this.backgroundColor,
+    required this.progressBarColor,
   });
 
   @override
   Widget build(BuildContext context) {
-    final percentageValue =
-        ((curr / maxx) * 100).clamp(0, 100); // Ensure valid percentage
-    final percentageText =
-        "${percentageValue.toStringAsFixed(1)}%"; // Show 1 decimal place
+    final percentageValue = ((curr / maxx) * 100).clamp(0, 100);
+    final percentageText = "${percentageValue.toStringAsFixed(1)}%";
     final trueiconn = getIconData(title);
 
     return Padding(
@@ -65,7 +67,7 @@ class CategoriesWidget extends StatelessWidget {
       child: Container(
         height: 100,
         decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 207, 21, 240),
+          color: backgroundColor, // Use passed background color
           borderRadius: BorderRadius.circular(20),
         ),
         child: Column(
@@ -85,11 +87,7 @@ class CategoriesWidget extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  const SizedBox(
-                    width: 5,
-                    height: 5,
-                  ),
-                  // const FaIcon(FontAwesomeIcons.shirt),
+                  const SizedBox(width: 5),
                   Icon(
                     trueiconn,
                     color: Colors.white,
@@ -108,13 +106,13 @@ class CategoriesWidget extends StatelessWidget {
                     value: curr,
                     maxValue: maxx,
                     border: border,
+                    progressBarColor: progressBarColor, // Use passed color
                   ),
-                  Positioned(
-                    left: 8.0,
+                  Center(
                     child: Text(
                       percentageText,
                       style: const TextStyle(
-                        fontSize: 14,
+                        fontSize: 16, // Bigger font
                         fontWeight: FontWeight.bold,
                         color: Colors.white70,
                       ),
@@ -130,154 +128,216 @@ class CategoriesWidget extends StatelessWidget {
   }
 }
 
-class SpendingsWidget extends StatelessWidget {
-  final List<dynamic> cats;
 
-  const SpendingsWidget({
-    super.key,
-    required this.cats,
-  });
 
-  // List<dynamic> getFilteredCategories() {
-  //   return cats.where((category) => !exclusions.contains(category[0])).toList();
-  // }
+// class SpendingsWidget extends StatelessWidget {
+//   final List<dynamic> cats;
 
-  // List<PieChartSectionData> generatePieChartSections() {
-  //   final filteredCats = getFilteredCategories();
+//   const SpendingsWidget({
+//     super.key,
+//     required this.cats,
+//   });
 
-  //   // Convert filtered data into PieChart sections
-  //   return filteredCats.map((category) {
-  //     final String label = category[0]; // Category name
-  //     final double value = category[1].toDouble(); // Ensure the value is a double
+//   // List<dynamic> getFilteredCategories() {
+//   //   return cats.where((category) => !exclusions.contains(category[0])).toList();
+//   // }
 
-  //     return PieChartSectionData(
-  //       value: value,
-  //       color: Colors.primaries[filteredCats.indexOf(category) % Colors.primaries.length],
-  //       radius: 50,
-  //       title: '', // No text on the pie chart
-  //     );
-  //   }).toList();
-  // }
+//   // List<PieChartSectionData> generatePieChartSections() {
+//   //   final filteredCats = getFilteredCategories();
 
-  // Widget buildScrollableLegend() {
-  //   final filteredCats = getFilteredCategories();
-  //   final int itemsPerPage = 5; // Number of categories visible at a time
+//   //   // Convert filtered data into PieChart sections
+//   //   return filteredCats.map((category) {
+//   //     final String label = category[0]; // Category name
+//   //     final double value = category[1].toDouble(); // Ensure the value is a double
 
-  //   return Container(
-  //     decoration: BoxDecoration(
-  //       color: Colors.white, // Background color for the legend box
-  //       border: Border.all(color: Colors.black, width: 2), // Black border
-  //       borderRadius: BorderRadius.circular(8), // Rounded corners
-  //     ),
-  //     padding: const EdgeInsets.all(10), // Padding inside the box
-  //     child: SizedBox(
-  //       height: itemsPerPage * 30.0, // Restrict the height dynamically for 5 items
-  //       child: SingleChildScrollView(
-  //         child: Column(
-  //           children: List.generate(filteredCats.length, (index) {
-  //             final category = filteredCats[index];
-  //             final String label = category[0];
-  //             final Color color = Colors.primaries[index % Colors.primaries.length];
+//   //     return PieChartSectionData(
+//   //       value: value,
+//   //       color: Colors.primaries[filteredCats.indexOf(category) % Colors.primaries.length],
+//   //       radius: 50,
+//   //       title: '', // No text on the pie chart
+//   //     );
+//   //   }).toList();
+//   // }
 
-  //             return Padding(
-  //               padding: const EdgeInsets.symmetric(vertical: 5.0),
-  //               child: Row(
-  //                 children: [
-  //                   Container(
-  //                     width: 12,
-  //                     height: 12,
-  //                     decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-  //                   ),
-  //                   const SizedBox(width: 8),
-  //                   Expanded(
-  //                     child: Text(
-  //                       label,
-  //                       style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-  //                       overflow: TextOverflow.ellipsis, // Handles long text gracefully
-  //                     ),
-  //                   ),
-  //                 ],
-  //               ),
-  //             );
-  //           }),
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
+//   // Widget buildScrollableLegend() {
+//   //   final filteredCats = getFilteredCategories();
+//   //   final int itemsPerPage = 5; // Number of categories visible at a time
 
-  @override
-  Widget build(BuildContext context) {
-    final total = cats.fold<num>(0, (sum, cat) {
-      if (exclusions.contains(cat[0] as String)) return sum;
-      return sum + (cat[1] as num);
-    });
+//   //   return Container(
+//   //     decoration: BoxDecoration(
+//   //       color: Colors.white, // Background color for the legend box
+//   //       border: Border.all(color: Colors.black, width: 2), // Black border
+//   //       borderRadius: BorderRadius.circular(8), // Rounded corners
+//   //     ),
+//   //     padding: const EdgeInsets.all(10), // Padding inside the box
+//   //     child: SizedBox(
+//   //       height: itemsPerPage * 30.0, // Restrict the height dynamically for 5 items
+//   //       child: SingleChildScrollView(
+//   //         child: Column(
+//   //           children: List.generate(filteredCats.length, (index) {
+//   //             final category = filteredCats[index];
+//   //             final String label = category[0];
+//   //             final Color color = Colors.primaries[index % Colors.primaries.length];
 
-    return Padding(
-      padding: const EdgeInsets.all(22),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(width: 1),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Row(
-                children: [
-                  Padding(
-                    padding: EdgeInsets.all(10),
-                    child: Text(
-                      "Spendings Summary",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w400,
-                        fontFamily: "Sans-Serif",
-                        fontSize: 24,
-                        color: Color.fromARGB(255, 250, 250, 250),
-                      ),
-                    ),
-                  ),
-                  Icon(
-                    Icons.line_axis_outlined,
-                    size: 35,
-                    color: Colors.white,
-                  ),
-                ],
-              ),
-              SizedBox(
-                width: 350,
-                height: 350,
-                child: ListView.builder(
-                  itemCount: cats.length,
-                  itemBuilder: (context, index) {
-                    if (cats[index].length < 3 ||
-                        exclusions.contains(cats[index][0])) {
-                      return const SizedBox.shrink();
-                    }
-                    return CategoriesWidget(
-                      title: cats[index][0],
-                      curr: cats[index][1],
-                      maxx: total as int,
-                      border: false,
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
+//   //             return Padding(
+//   //               padding: const EdgeInsets.symmetric(vertical: 5.0),
+//   //               child: Row(
+//   //                 children: [
+//   //                   Container(
+//   //                     width: 12,
+//   //                     height: 12,
+//   //                     decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+//   //                   ),
+//   //                   const SizedBox(width: 8),
+//   //                   Expanded(
+//   //                     child: Text(
+//   //                       label,
+//   //                       style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+//   //                       overflow: TextOverflow.ellipsis, // Handles long text gracefully
+//   //                     ),
+//   //                   ),
+//   //                 ],
+//   //               ),
+//   //             );
+//   //           }),
+//   //         ),
+//   //       ),
+//   //     ),
+//   //   );
+//   // }
 
-// HorizontalBarChart widget
-class HorizontalBarChart extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     final total = cats.fold<num>(0, (sum, cat) {
+//       if (exclusions.contains(cat[0] as String)) return sum;
+//       return sum + (cat[1] as num);
+//     });
+
+//     return Padding(
+//       padding: const EdgeInsets.all(22),
+//       child: Container(
+//         decoration: BoxDecoration(
+//           borderRadius: BorderRadius.circular(20),
+//           border: Border.all(width: 1),
+//         ),
+//         child: Padding(
+//           padding: const EdgeInsets.all(8),
+//           child: Column(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               const Row(
+//                 children: [
+//                   Padding(
+//                     padding: EdgeInsets.all(10),
+//                     child: Text(
+//                       "Spendings Summary",
+//                       style: TextStyle(
+//                         fontWeight: FontWeight.w400,
+//                         fontFamily: "Sans-Serif",
+//                         fontSize: 24,
+//                         color: Color.fromARGB(255, 250, 250, 250),
+//                       ),
+//                     ),
+//                   ),
+//                   Icon(
+//                     Icons.line_axis_outlined,
+//                     size: 35,
+//                     color: Colors.white,
+//                   ),
+//                 ],
+//               ),
+//               SizedBox(
+//                 width: 350,
+//                 height: 350,
+//                 child: ListView.builder(
+//                   itemCount: cats.length,
+//                   itemBuilder: (context, index) {
+//                     if (cats[index].length < 3 ||
+//                         exclusions.contains(cats[index][0])) {
+//                       return const SizedBox.shrink();
+//                     }
+//                     return CategoriesWidget(
+//                       title: cats[index][0],
+//                       curr: cats[index][1],
+//                       maxx: total as int,
+//                       border: false,
+//                     );
+//                   },
+//                 ),
+//               ),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+// // HorizontalBarChart widget
+// class HorizontalBarChart extends StatelessWidget {
+//   final int value; // Current value
+//   final int maxValue; // Maximum value
+//   final Color progressBarColor; // Color of the progress bar
+//   final Color fillColor; // Filled portion color
+//   final double borderRadius;
+//   final bool border;
+
+//   const HorizontalBarChart({
+//     super.key,
+//     required this.value,
+//     required this.maxValue,
+//     this.progressBarColor = const Color.fromARGB(255, 255, 255, 255),
+//     this.fillColor = const Color.fromARGB(255, 40, 40, 60),
+//     this.borderRadius = 10.0,
+//     required this.border,
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final barWidth = (value.clamp(0, maxValue) / maxValue) * 350.0; // Scale bar width
+
+//     return Container(
+//       height: 40,
+//       decoration: BoxDecoration(
+//         borderRadius: BorderRadius.circular(borderRadius),
+//         color: fillColor, // Background color for the bar
+//       ),
+//       child: Stack(
+//         children: [
+//           // Background Bar Border
+//           if (border)
+//             Container(
+//               decoration: BoxDecoration(
+//                 border: Border.all(
+//                   color: const Color.fromARGB(243, 251, 250, 250),
+//                   width: 1.0,
+//                 ),
+//                 borderRadius: BorderRadius.circular(borderRadius),
+//               ),
+//             ),
+//           // Animated Progress Bar
+//           AnimatedContainer(
+//             duration: const Duration(milliseconds: 600), // Animation duration
+//             curve: Curves.easeInOut, // Smooth animation curve
+//             width: barWidth, // Animated width of the progress bar
+//             height: 40,
+//             decoration: BoxDecoration(
+//               color: progressBarColor, // Color of the progress bar
+//               borderRadius: BorderRadius.circular(borderRadius),
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+
+// import 'package:flutter/material.dart';
+
+class HorizontalBarChart extends StatefulWidget {
   final int value; // Current value
   final int maxValue; // Maximum value
-  final Color backgroundColor; // Background bar color
+  final Color progressBarColor; // Color of the progress bar
   final Color fillColor; // Filled portion color
   final double borderRadius;
   final bool border;
@@ -286,52 +346,82 @@ class HorizontalBarChart extends StatelessWidget {
     super.key,
     required this.value,
     required this.maxValue,
-    this.backgroundColor = const Color.fromARGB(0, 255, 255, 255),
-    this.fillColor = const Color.fromARGB(255, 41, 40, 81),
+    this.progressBarColor = const Color.fromARGB(255, 255, 255, 255),
+    this.fillColor = const Color.fromARGB(255, 40, 40, 60),
     this.borderRadius = 10.0,
     required this.border,
   });
 
   @override
-  Widget build(BuildContext context) {
-    final barWidth = (value / maxValue) * 350.0; // Scale bar to fit width
+  _HorizontalBarChartState createState() => _HorizontalBarChartState();
+}
 
-    return Container(
-      height: 40,
-      decoration: border
-          ? BoxDecoration(
-              borderRadius: BorderRadius.circular(borderRadius),
-              border: Border.all(
-                color: const Color.fromARGB(243, 251, 250, 250),
-                width: 1.0,
+class _HorizontalBarChartState extends State<HorizontalBarChart>
+    with TickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Animation setup
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 600), // Animation duration
+      vsync: this,
+    );
+
+    _animation = Tween<double>(
+      begin: 0.0, // Start from 0 width
+      end: (widget.value.clamp(0, widget.maxValue) / widget.maxValue) * 350.0, // End at the current value
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+
+    // Trigger animation when widget is built
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      alignment: Alignment.centerLeft,
+      children: [
+        // Background Bar (slightly larger)
+        Container(
+          width: 352, // 2px larger width (1px on each side)
+          height: 42, // 2px larger height (1px on each side)
+          decoration: BoxDecoration(
+            color: widget.fillColor, // Background color for the bar
+            borderRadius: BorderRadius.circular(widget.borderRadius + 1), // Slightly larger radius
+          ),
+        ),
+        // Animated Progress Bar
+        AnimatedBuilder(
+          animation: _controller,
+          builder: (context, child) {
+            return Container(
+              width: _animation.value, // Animated width of the progress bar
+              height: 40, // Original height of the progress bar
+              decoration: BoxDecoration(
+                color: widget.progressBarColor, // Color of the progress bar
+                borderRadius: BorderRadius.circular(widget.borderRadius),
               ),
-            )
-          : null,
-      child: Stack(
-        children: [
-          // Background Bar
-          Container(
-            width: 350,
-            height: 40,
-            decoration: BoxDecoration(
-              color: backgroundColor,
-              borderRadius: BorderRadius.circular(borderRadius),
-            ),
-          ),
-          // Filled Bar
-          Container(
-            width: barWidth,
-            height: 40,
-            decoration: BoxDecoration(
-              color: fillColor,
-              borderRadius: BorderRadius.circular(borderRadius),
-            ),
-          ),
-        ],
-      ),
+            );
+          },
+        ),
+      ],
     );
   }
 }
+
+
+
+
 
 class HorizontalBarPainter extends CustomPainter {
   final int value; // Current value (portion of maxValue)

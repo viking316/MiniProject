@@ -6,6 +6,8 @@ import 'package:miniproject/BudgetsPage.dart';
 import 'package:miniproject/HomePage.dart';
 import 'package:firebase_core/firebase_core.dart';
 
+// import 'Transactionspage.dart';
+
 // DO NOT REMOVE THE THREE METHODS BELOW
 
 // Future<String> getFilePath() async {
@@ -97,70 +99,98 @@ class MyApp extends StatefulWidget {
   @override
   _MyAppState createState() => _MyAppState();
 }
+// import 'package:flutter/material.dart';
+// import 'dart:ui';
 
 class _MyAppState extends State<MyApp> {
   int _selectedpage = 0;
 
-  void _updatepage(int towhat) {
+  // List of pages to display in the bottom navigation
+  final List<Widget> _pages = [
+    HomePage(), // Replace with your actual Home Page widget
+    BudgetsPage(), // Replace with your actual Budgets Page widget
+    UserInfoPage(), // Add a User Info page widget
+  ];
+
+  void _updatepage(int index) {
     setState(() {
-      _selectedpage = towhat;
+      _selectedpage = index;
     });
   }
-
-  final List _pages = [
-    const HomePage(),
-    const BudgetsPage(),
-    const UserInfoPage(),
-  ];
-  // IconData apparal = FontAwesomeIcons.shirt;
-  // IconData  beauty = FontAwesomeIcons.sprayCanSparkles;
-  // IconData education = FontAwesomeIcons.userGraduate;
-  // IconData Entertainment = FontAwesomeIcons.tv;
-  // IconData Food = FontAwesomeIcons.utensils;
-  // IconData gift = FontAwesomeIcons.gifts;
-  // IconData groceries= FontAwesomeIcons.appleWhole;
-  // IconData household = FontAwesomeIcons.houseLaptop;
-  // IconData other = FontAwesomeIcons.wrench;
-  // IconData petty= FontAwesomeIcons.moneyBill;
-  // IconData self_dev = FontAwesomeIcons.personRays;
-  // IconData social = FontAwesomeIcons.shareNodes;
-  // IconData Transport= FontAwesomeIcons.trainSubway;
-  // IconData a = FontAwesomeIcons.shirt;
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        body: _pages[_selectedpage],
-        bottomNavigationBar: ClipRRect(
+@override
+Widget build(BuildContext context) {
+  return MaterialApp(
+    home: Scaffold(
+      backgroundColor: Colors.grey[900], // Match your background color
+      extendBody: true, // This is important - it allows the body to extend behind the navigation bar
+      body: _pages[_selectedpage],
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.3),
+              blurRadius: 10,
+              spreadRadius: 2,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(20.0),
+            topRight: Radius.circular(20.0),
+          ),
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
             child: Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFF1C1C3C).withOpacity(0.9),
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(20.0),
+                  topRight: Radius.circular(20.0),
+                ),
+              ),
               child: BottomNavigationBar(
                 type: BottomNavigationBarType.fixed,
                 currentIndex: _selectedpage,
                 onTap: _updatepage,
-                items: const [
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.line_axis_sharp),
-                    label: "Home",
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.production_quantity_limits_sharp),
-                    label: "Transactions",
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.person),
-                    label: "User Info", // New button for User Info page
-                  ),
+                backgroundColor: Colors.transparent,
+                selectedItemColor: const Color(0xFF00D1FF),
+                unselectedItemColor: const Color(0xFFA5A5C5),
+                showSelectedLabels: true,
+                showUnselectedLabels: true,
+                elevation: 0,
+                items: [
+                  _buildNavItem(Icons.line_axis_sharp, "Home", 0),
+                  _buildNavItem(Icons.production_quantity_limits_sharp, "Budgets", 1),
+                  _buildNavItem(Icons.person, "User Info", 2),
                 ],
               ),
             ),
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
+BottomNavigationBarItem _buildNavItem(IconData icon, String label, int index) {
+  bool isSelected = _selectedpage == index;
+  return BottomNavigationBarItem(
+    icon: Container(
+      width: 80,
+      height: 35,
+      alignment: Alignment.center,
+      decoration: isSelected
+          ? BoxDecoration(
+              color: const Color(0xFF3B3B6B),
+              borderRadius: BorderRadius.circular(20),
+            )
+          : null,
+      child: Icon(icon, size: 24),
+    ),
+    label: label,
+  );
 }
 
 
@@ -184,3 +214,4 @@ class _MyAppState extends State<MyApp> {
 //   }
 // }
 // print("amazing");
+}

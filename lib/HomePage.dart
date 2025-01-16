@@ -119,101 +119,119 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[900],
-      appBar: AppBar(
-        title: const Text("Home Page"),
-        backgroundColor: const Color(0xFF2ECC71),
-        centerTitle: true,
-      ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // User Info Section
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const UserInfoPage(),
-                        ),
-                      );
-                    },
-                    child: Card(
-                      elevation: 8,
-                      margin: const EdgeInsets.only(bottom: 20),
-                      color: Colors.grey[850],
-                      child: Padding(
-                        padding: const EdgeInsets.all(15),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Name: $userName',
-                              style: const TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-                            ),
-                            Text(
-                              'Saved Amount: ₹$savedAmount',
-                              style: const TextStyle(fontSize: 16, color: Colors.white),
-                            ),
-                            Text(
-                              'Total Points: $totalPoints',
-                              style: const TextStyle(fontSize: 16, color: Colors.white),
-                            ),
-                            Text(
-                              'Total Spending: ₹$totalSpending',
-                              style: const TextStyle(fontSize: 16, color: Colors.white),
-                            ),
-                          ],
-                        ),
-                      ),
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    backgroundColor: Colors.grey[900],
+    appBar: AppBar(
+      title: const Text("Home Page"),
+      backgroundColor: const Color(0xFF2ECC71),
+      centerTitle: true,
+    ),
+    body: Stack(
+      children: [
+        // Main content
+        Padding(
+          padding: const EdgeInsets.only(
+            left: 15.0,
+            right: 15.0,
+            top: 15.0,
+            bottom: 80.0, // Increased bottom padding for content
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // User Info Section
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const UserInfoPage(),
                     ),
-                  ),
-                  // Row for Pie Chart and Legend
-                  Expanded(
-                    child: Row(
+                  );
+                },
+                child: Card(
+                  elevation: 8,
+                  margin: const EdgeInsets.only(bottom: 20),
+                  color: Colors.grey[850],
+                  child: Padding(
+                    padding: const EdgeInsets.all(15),
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          flex: 2,
-                          child: Column(
-                            children: [
-                              Expanded(
-                                child: PieChart(
-                                  PieChartData(
-                                    sections: generatePieChartSections(),
-                                    sectionsSpace: 2,
-                                    centerSpaceRadius: 40,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                        Text(
+                          'Name: $userName',
+                          style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white),
                         ),
-                        const SizedBox(width: 20),
-                        Expanded(
-                          flex: 1,
-                          child: buildScrollableLegend(),
+                        Text(
+                          'Saved Amount: ₹$savedAmount',
+                          style:
+                              const TextStyle(fontSize: 16, color: Colors.white),
+                        ),
+                        Text(
+                          'Total Points: $totalPoints',
+                          style:
+                              const TextStyle(fontSize: 16, color: Colors.white),
+                        ),
+                        Text(
+                          'Total Spending: ₹$totalSpending',
+                          style:
+                              const TextStyle(fontSize: 16, color: Colors.white),
                         ),
                       ],
                     ),
                   ),
-                ],
+                ),
               ),
-            ),
-      floatingActionButton: AddTransactionFAB(
-        firestore: FirebaseFirestore.instance,
-      ),
-    );
-  }
+              // Row for Pie Chart and Legend
+              Expanded(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: PieChart(
+                              PieChartData(
+                                sections: generatePieChartSections(),
+                                sectionsSpace: 2,
+                                centerSpaceRadius: 40,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 20),
+                    Expanded(
+                      flex: 1,
+                      child: buildScrollableLegend(),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        // Floating Action Button
+        Positioned(
+          bottom: 80, // Fixed position above the navigation bar
+          right: 20,  // Fixed position from the right edge
+          child: AddTransactionFAB(
+            firestore: FirebaseFirestore.instance,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
 }
 
 class UserInfoPage extends StatelessWidget {
@@ -222,6 +240,7 @@ class UserInfoPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      
       appBar: AppBar(
         title: const Text("User Info"),
         backgroundColor: const Color(0xFF2ECC71),
