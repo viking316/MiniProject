@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:miniproject/Firebaseshit.dart';
 import 'package:miniproject/widgets.dart';
-import 'HomePage.dart';
+// import 'HomePage.dart';
 
 class UserInfoPage extends StatelessWidget {
-  const UserInfoPage({super.key});
+  UserInfoPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+  final Firebaseshit firebaseService = Firebaseshit();
+  firebaseService.listenToAllTransactionsSimplified();
     return Scaffold(
       appBar: AppBar(
-        title: const Text("User Info"),
-        backgroundColor: const Color(0xFF2ECC71), // Matches your app theme
+        title: const Text("User info"),
+        backgroundColor:  const Color(0xFF1A1A2E),
+        centerTitle: true, // Matches your app theme
       ),
+      backgroundColor: const Color(0xFF1A1A2E),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -60,6 +64,14 @@ class UserInfoPage extends StatelessWidget {
               },
               child: const Text("Edit Info"),
             ),
+            //  Transaction Line Chart
+                SizedBox(
+                  height: 350, // Set the height for the line chart
+                  child: TransactionChartPage(
+                    transformedTransactionsNotifier:
+                        firebaseService.transformedTransactionsNotifier,
+                  ),
+                ),
           ],
         ),
       ),

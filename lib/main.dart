@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:miniproject/BudgetsPage.dart';
 import 'package:miniproject/HomePage.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:miniproject/userinfopage.dart';
 
 // import 'Transactionspage.dart';
 
@@ -144,7 +145,7 @@ class _MyAppState extends State<MyApp> {
               filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
               child: Container(
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1C1C3C).withOpacity(0.9),
+                  color: const Color.fromARGB(0, 28, 28, 60).withOpacity(0.5),
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(20.0),
                     topRight: Radius.circular(20.0),
@@ -162,11 +163,11 @@ class _MyAppState extends State<MyApp> {
                   elevation: 0,
                   items: [
                     BottomNavigationBarItem(
-                      icon: Icon(Icons.line_axis_sharp),
+                      icon: Icon(Icons.home),
                       label: '', // Removed the label completely
                     ),
                     BottomNavigationBarItem(
-                      icon: Icon(Icons.production_quantity_limits_sharp),
+                      icon: Icon(Icons.balance_sharp),
                       label: '', // Removed the label completely
                     ),
                     BottomNavigationBarItem(

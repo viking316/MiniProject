@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:miniproject/Firebaseshit.dart';
+import 'package:miniproject/userinfopage.dart';
 import 'package:miniproject/widgets.dart';
 
 class HomePage extends StatefulWidget {
@@ -25,7 +26,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     firebaseService.listenToAllTransactions();
-    firebaseService.listenToAllTransactionsSimplified();
+    // firebaseService.listenToAllTransactionsSimplified();
     fetchData();
   }
 
@@ -147,7 +148,7 @@ Widget build(BuildContext context) {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const UserInfoPage(),
+                      builder: (context) =>  UserInfoPage(),
                     ),
                   );
                 },
@@ -189,7 +190,7 @@ Widget build(BuildContext context) {
               ),
               // Row for Pie Chart and Legend
               Expanded(
-                child: Row(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
@@ -213,8 +214,12 @@ Widget build(BuildContext context) {
                       flex: 1,
                       child: buildScrollableLegend(),
                     ),
+                     // Transaction Line Chart
+          
+                    
                   ],
                 ),
+                
               ),
             ],
           ),
@@ -234,23 +239,23 @@ Widget build(BuildContext context) {
 
 }
 
-class UserInfoPage extends StatelessWidget {
-  const UserInfoPage({super.key});
+// class UserInfoPage extends StatelessWidget {
+//   const UserInfoPage({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
       
-      appBar: AppBar(
-        title: const Text("User Info"),
-        backgroundColor: const Color(0xFF2ECC71),
-      ),
-      body: const Center(
-        child: Text(
-          "This is the user info page.",
-          style: TextStyle(fontSize: 20),
-        ),
-      ),
-    );
-  }
-}
+//       appBar: AppBar(
+//         title: const Text("User Info"),
+//         backgroundColor: const Color(0xFF2ECC71),
+//       ),
+//       body: const Center(
+//         child: Text(
+//           "This is the user info page.",
+//           style: TextStyle(fontSize: 20),
+//         ),
+//       ),
+//     );
+//   }
+// }

@@ -26,11 +26,13 @@ class _BudgetsPage extends State<BudgetsPage> {
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         extendBodyBehindAppBar: true, // Extend body behind the AppBar
-        backgroundColor: const Color(0xFF1A1A2E), // Darker blue background
+        backgroundColor: const Color.fromRGBO(26, 26, 46, 1), // Darker blue background
         appBar: AppBar(
           title: const Text('Budgets'),
+
+          
           centerTitle: true,
-          backgroundColor: Colors.deepPurple.withOpacity(0.9), // Semi-transparent AppBar
+          backgroundColor: const Color.fromARGB(255, 26, 26, 46).withOpacity(0.9), // Semi-transparent AppBar
           elevation: 0, // Remove AppBar shadow
         ),
         body: Stack(
