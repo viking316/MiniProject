@@ -100,17 +100,52 @@ class _TransactionsPageState extends State<TransactionsPage> {
               final amount = transaction['amount'] ?? 0;
               final type = transaction['type'] ?? 'Unknown';
 
-              return ListTile(
-                title: Text(note),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Amount: \₹${amount.toStringAsFixed(2)}'),
-                    Text('Type: $type'),
-                  ],
-                ),
-                trailing: Text(date),
-              );
+              return Card(
+  elevation: 4,
+  margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+  child: Padding(
+    padding: const EdgeInsets.all(10),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        // Left section: Transaction details
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              note,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 5),
+            Text('Amount: \$${amount.toStringAsFixed(2)}'),
+            Text('Type: $type'),
+            Text('Date: $date'),
+          ],
+        ),
+        // Right section: Points display
+        Row(
+          // children: [
+          //   Text(
+          //     '${transaction['points'] ?? 0}', // Fetch points from the transaction
+          //     style: const TextStyle(
+          //       fontSize: 14,
+          //       fontWeight: FontWeight.bold,
+          //       color: Colors.black87,
+          //     ),
+          //   ),
+          //   const SizedBox(width: 5),
+          //   const Icon(
+          //     Icons.star, // Star icon for points
+          //     color: Colors.amber,
+          //     size: 20,
+          //   ),
+          // ],
+        ),
+      ],
+    ),
+  ),
+);
+
             },
           );
         },
