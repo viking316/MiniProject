@@ -317,9 +317,9 @@ Widget build(BuildContext context) {
                     UserInfoCard(
                       name: "John Doe",
                       email: "johndoe@example.com",
-                      savedAmount: "₹5000",
-                      totalSpending: "₹3000",
-                      totalPoints: "250",
+                      savedAmount: savedAmount.toString(),
+                      totalSpending: totalSpending.toString(),
+                      totalPoints: (totalPoints.toString()),
                       showEmail: false,
                       clicked: true, // Set to false to hide the email
                     ),

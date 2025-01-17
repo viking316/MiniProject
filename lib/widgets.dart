@@ -1118,6 +1118,9 @@ class AddTransactionFAB extends StatelessWidget {
   }
 }
 
+// import 'package:flutter/material.dart';
+
+
 
 class UserInfoCard extends StatefulWidget {
   final String name;
@@ -1145,139 +1148,187 @@ class UserInfoCard extends StatefulWidget {
 
 class _UserInfoCardState extends State<UserInfoCard>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<double> _scaleAnimation;
+  late final AnimationController? _controller;
+  late final Animation<Offset>? _slideAnimation;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 600), // Animation duration
-      vsync: this,
-    );
 
-    _scaleAnimation = Tween<double>(begin: 1.5, end: 1.0).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOutBack, // Smooth bounce effect
-    ));
+    // Initialize animation controller only when clicked is true
+    if (widget.clicked) {
+      _controller = AnimationController(
+        duration: const Duration(milliseconds: 600), // Animation duration
+        vsync: this,
+      );
 
-    // Start the animation
-    _controller.forward();
+      _slideAnimation = Tween<Offset>(
+        begin: const Offset(-1.0, 0.0), // Start off-screen to the left
+        end: Offset.zero, // End at original position
+      ).animate(CurvedAnimation(
+        parent: _controller!,
+        curve: Curves.easeOut, // Smooth ease-out animation curve
+      ));
+
+      _controller!.forward(); // Start the animation
+    } else {
+      _controller = null;
+      _slideAnimation = null;
+    }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controller?.dispose(); // Dispose only if initialized
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final card = Container(
+      margin: const EdgeInsets.all(16), // Outer margin
+      padding: const EdgeInsets.all(16), // Inner padding
+      decoration: BoxDecoration(
+        color: const Color(0xFF1A1A2E), // Dark blue theme
+        borderRadius: BorderRadius.circular(16), // Rounded corners
+        border: Border.all(
+          color: Colors.white, // White border
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2), // Subtle shadow
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                widget.name,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const Divider(
+                color: Colors.white,
+                thickness: 1.5,
+              ),
+              const SizedBox(height: 16),
+              if (widget.showEmail)
+                Text(
+                  "Email: ${widget.email}",
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                  ),
+                ),
+              if (widget.showEmail) const SizedBox(height: 10),
+              Text(
+                "Saved Amount: ${widget.savedAmount}",
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                "Total Spending: ${widget.totalSpending}",
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                ),
+              ),
+              const SizedBox(height: 10),
+            ],
+          ),
+          Positioned(
+            top: 10,
+            right: 0,
+            child: Row(
+              children: [
+                Text(
+                  "Total Points: ${widget.totalPoints}",
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(width: 5),
+                const Icon(
+                  Icons.monetization_on,
+                  color: Colors.yellow,
+                  size: 20,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+
     return GestureDetector(
       onTap: () {
         if (widget.clicked) {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => UserInfoPage(),
+              builder: (context) =>  UserInfoPage(),
             ),
           );
         }
       },
-      child: ScaleTransition(
-        scale: _scaleAnimation,
-        child: Container(
-          margin: const EdgeInsets.all(16), // Add margin to separate from edges
-          padding: const EdgeInsets.all(16), // Add padding inside the container
-          decoration: BoxDecoration(
-            color: const Color(0xFF1A1A2E), // Popular dark blue theme color
-            borderRadius: BorderRadius.circular(16), // Rounded corners
-            border: Border.all(
-              color: Colors.white, // White border around the widget
-              width: 1.5,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.2), // Subtle shadow
-                blurRadius: 8,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Stack(
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Username as the title
-                  Text(
-                    widget.name,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const Divider(
-                    color: Colors.white, // White border between sections
-                    thickness: 1.5,
-                  ),
-                  const SizedBox(height: 16),
-                  // Conditional Email Display
-                  if (widget.showEmail)
-                    Text(
-                      "Email: ${widget.email}",
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                      ),
-                    ),
-                  if (widget.showEmail) const SizedBox(height: 10),
-                  Text(
-                    "Saved Amount: ${widget.savedAmount}",
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    "Total Spending: ${widget.totalSpending}",
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                ],
-              ),
-              Positioned(
-                top: 10, // Y offset for total points
-                right: 0,
-                child: Row(
-                  children: [
-                    Text(
-                      "Total Points: ${widget.totalPoints}",
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(width: 5),
-                    const Icon(
-                      Icons.monetization_on,
-                      color: Colors.yellow,
-                      size: 20,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+      child: widget.clicked && _slideAnimation != null
+          ? SlideTransition(
+              position: _slideAnimation!,
+              child: card,
+            )
+          : card, // Show static card if not clicked or animation is null
     );
   }
 }
 
+// class UserInfoPage extends StatelessWidget {
+//   const UserInfoPage({Key? key}) : super(key: key);
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: const Text("User Info Page"),
+//       ),
+//       body: const Center(
+//         child: Text(
+//           "User Info Details",
+//           style: TextStyle(fontSize: 24),
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+// class UserInfoPage extends StatelessWidget {
+//   const UserInfoPage({Key? key}) : super(key: key);
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: const Text("User Info Page"),
+//       ),
+//       body: const Center(
+//         child: Text(
+//           "User Info Details",
+//           style: TextStyle(fontSize: 24),
+//         ),
+//       ),
+//     );
+//   }
+// }
