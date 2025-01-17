@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:miniproject/userinfopage.dart';
 
 // Helper Functions and Data
 String limitText(String text, int maxLength) {
@@ -639,7 +640,7 @@ class _TransactionChartPageState extends State<TransactionChartPage> {
         backgroundColor: isEnabled
             ? Colors.blue.withOpacity(0.1)
             : Colors.grey.withOpacity(0.1),
-        foregroundColor: isEnabled ? Colors.blue : Colors.grey,
+        foregroundColor: isEnabled ? Colors.blue : const Color.fromARGB(255, 238, 237, 237),
       ),
     );
   }
@@ -694,6 +695,7 @@ class _TransactionChartPageState extends State<TransactionChartPage> {
                               : '',
                           style: const TextStyle(
                             fontSize: 7.2,
+                            color: Colors.white,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -762,6 +764,7 @@ class _TransactionChartPageState extends State<TransactionChartPage> {
           children: [
             _buildNavigationButton(
               icon: Icons.arrow_back,
+              // style: 
               onPressed: () => setState(() {
                 if (currentPageIndex > 0) currentPageIndex--;
               }),
@@ -772,6 +775,7 @@ class _TransactionChartPageState extends State<TransactionChartPage> {
               child: Text(
                 'Page ${currentPageIndex + 1} of ${monthlySpots.length}',
                 style: const TextStyle(
+                  color: Colors.white,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -856,6 +860,8 @@ class _TransactionChartPageState extends State<TransactionChartPage> {
     );
   }
 }
+
+
 class AddTransactionFAB extends StatelessWidget {
   final FirebaseFirestore firestore;
 
@@ -1086,3 +1092,167 @@ class AddTransactionFAB extends StatelessWidget {
     );
   }
 }
+
+
+class UserInfoCard extends StatefulWidget {
+  final String name;
+  final String email;
+  final String savedAmount;
+  final String totalSpending;
+  final String totalPoints;
+  final bool showEmail;
+  final bool clicked;
+
+  const UserInfoCard({
+    Key? key,
+    required this.name,
+    required this.email,
+    required this.savedAmount,
+    required this.totalSpending,
+    required this.totalPoints,
+    this.showEmail = true,
+    this.clicked = false, // Default to false if not provided
+  }) : super(key: key);
+
+  @override
+  State<UserInfoCard> createState() => _UserInfoCardState();
+}
+
+class _UserInfoCardState extends State<UserInfoCard>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 600), // Animation duration
+      vsync: this,
+    );
+
+    _scaleAnimation = Tween<double>(begin: 1.5, end: 1.0).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOutBack, // Smooth bounce effect
+    ));
+
+    // Start the animation
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        if (widget.clicked) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => UserInfoPage(),
+            ),
+          );
+        }
+      },
+      child: ScaleTransition(
+        scale: _scaleAnimation,
+        child: Container(
+          margin: const EdgeInsets.all(16), // Add margin to separate from edges
+          padding: const EdgeInsets.all(16), // Add padding inside the container
+          decoration: BoxDecoration(
+            color: const Color(0xFF1A1A2E), // Popular dark blue theme color
+            borderRadius: BorderRadius.circular(16), // Rounded corners
+            border: Border.all(
+              color: Colors.white, // White border around the widget
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2), // Subtle shadow
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Stack(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Username as the title
+                  Text(
+                    widget.name,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const Divider(
+                    color: Colors.white, // White border between sections
+                    thickness: 1.5,
+                  ),
+                  const SizedBox(height: 16),
+                  // Conditional Email Display
+                  if (widget.showEmail)
+                    Text(
+                      "Email: ${widget.email}",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                      ),
+                    ),
+                  if (widget.showEmail) const SizedBox(height: 10),
+                  Text(
+                    "Saved Amount: ${widget.savedAmount}",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    "Total Spending: ${widget.totalSpending}",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                ],
+              ),
+              Positioned(
+                top: 10, // Y offset for total points
+                right: 0,
+                child: Row(
+                  children: [
+                    Text(
+                      "Total Points: ${widget.totalPoints}",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(width: 5),
+                    const Icon(
+                      Icons.monetization_on,
+                      color: Colors.yellow,
+                      size: 20,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+

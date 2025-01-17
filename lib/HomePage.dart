@@ -309,116 +309,38 @@ Widget build(BuildContext context) {
         ? const Center(child: CircularProgressIndicator())
         : Stack(
             children: [
-              AnimatedBuilder(
-                animation: _controller,
-                builder: (context, child) {
-                  return Padding(
-                    padding: const EdgeInsets.all(15.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Transform.translate(
-                          offset: Offset(_cardAnimation.value, 0),
-                          child: FadeTransition(
-                            opacity: _controller,
-                            child: GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => UserInfoPage(),
-                                  ),
-                                );
-                              },
-                              child: Hero(
-                                tag: 'userInfoCard',
-                                child: Card(
-                                  elevation: 8,
-                                  margin: const EdgeInsets.only(bottom: 20),
-                                  color: Colors.grey[850],
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(15),
-                                    child: Stack(
-                                      children: [
-                                        Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              'Name: $userName',
-                                              style: const TextStyle(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 10),
-                                            Text(
-                                              'Saved Amount: ₹$savedAmount',
-                                              style: const TextStyle(
-                                                fontSize: 16,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 10),
-                                            Text(
-                                              'Total Spending: ₹$totalSpending',
-                                              style: const TextStyle(
-                                                fontSize: 16,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        Positioned(
-                                          top: 0,
-                                          right: 0,
-                                          child: Row(
-                                            children: [
-                                              Text(
-                                                'Total Points: $totalPoints',
-                                                style: const TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                              const SizedBox(width: 5),
-                                              const Icon(
-                                                Icons.monetization_on,
-                                                color: Colors.yellow,
-                                                size: 20,
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                flex: 2,
-                                child: buildPieChart(),
-                              ),
-                              const SizedBox(width: 20),
-                              Expanded(
-                                flex: 1,
-                                child: buildScrollableLegend(),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+              Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    UserInfoCard(
+                      name: "John Doe",
+                      email: "johndoe@example.com",
+                      savedAmount: "₹5000",
+                      totalSpending: "₹3000",
+                      totalPoints: "250",
+                      showEmail: false,
+                      clicked: true, // Set to false to hide the email
                     ),
-                  );
-                },
+                    Expanded(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: buildPieChart(),
+                          ),
+                          const SizedBox(width: 20),
+                          Expanded(
+                            flex: 1,
+                            child: buildScrollableLegend(),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
               Positioned(
                 bottom: 80, // Fixed position above the navigation bar
@@ -432,22 +354,4 @@ Widget build(BuildContext context) {
   );
 }
 
-// class UserInfoPage extends StatelessWidget {
-//   const UserInfoPage({super.key});
-
-  // @override
-  // Widget build(BuildContext context) {
-  //   return Scaffold(
-  //     appBar: AppBar(
-  //       title: const Text("User Info"),
-  //       backgroundColor: const Color(0xFF2ECC71),
-  //     ),
-  //     body: const Center(
-  //       child: Text(
-  //         "This is the user info page.",
-  //         style: TextStyle(fontSize: 20),
-  //       ),
-  //     ),
-  //   );
-  // }
 }

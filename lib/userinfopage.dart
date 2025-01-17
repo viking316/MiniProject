@@ -8,12 +8,15 @@ class UserInfoPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-  final Firebaseshit firebaseService = Firebaseshit();
-  firebaseService.listenToAllTransactionsSimplified();
+    final Firebaseshit firebaseService = Firebaseshit();
+    firebaseService.listenToAllTransactionsSimplified();
     return Scaffold(
       appBar: AppBar(
-        title: const Text("User info"),
-        backgroundColor:  const Color(0xFF1A1A2E),
+        title: const Text(
+          "User info",
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: const Color(0xFF1A1A2E),
         centerTitle: true, // Matches your app theme
       ),
       backgroundColor: const Color(0xFF1A1A2E),
@@ -22,56 +25,31 @@ class UserInfoPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "User Information",
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              "Name: John Doe",
-              style: TextStyle(
-                fontSize: 18,
-              ),
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              "Email: johndoe@example.com",
-              style: TextStyle(
-                fontSize: 18,
-              ),
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              "Saved Amount: ₹5000",
-              style: TextStyle(
-                fontSize: 18,
-              ),
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              "Total Points: 250",
-              style: TextStyle(
-                fontSize: 18,
-              ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                // Add functionality for editing user info or navigating to another screen
-              },
-              child: const Text("Edit Info"),
-            ),
+            UserInfoCard(
+  name: "John Doe",
+  email: "johndoe@example.com",
+  savedAmount: "₹5000",
+  totalSpending: "₹3000",
+  totalPoints: "250",
+  showEmail: true,
+  clicked: false, // Set to false to hide the email
+),
+
+            // const SizedBox(height: 20),
+            // ElevatedButton(
+            //   onPressed: () {
+            //     // Add functionality for editing user info or navigating to another screen
+            //   },
+            //   child: const Text("Edit Info"),
+            // ),
             //  Transaction Line Chart
-                SizedBox(
-                  height: 350, // Set the height for the line chart
-                  child: TransactionChartPage(
-                    transformedTransactionsNotifier:
-                        firebaseService.transformedTransactionsNotifier,
-                  ),
-                ),
+            SizedBox(
+              height: 350, // Set the height for the line chart
+              child: TransactionChartPage(
+                transformedTransactionsNotifier:
+                    firebaseService.transformedTransactionsNotifier,
+              ),
+            ),
           ],
         ),
       ),
