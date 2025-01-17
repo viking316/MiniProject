@@ -299,7 +299,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 @override
 Widget build(BuildContext context) {
   return Scaffold(
-    backgroundColor: Colors.grey[900],
+    backgroundColor: const Color(0xFF1A1A2E),
     appBar: AppBar(
         title: const Text(
           "Home Page",
