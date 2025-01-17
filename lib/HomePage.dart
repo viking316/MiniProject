@@ -301,10 +301,13 @@ Widget build(BuildContext context) {
   return Scaffold(
     backgroundColor: Colors.grey[900],
     appBar: AppBar(
-      title: const Text("Home Page"),
-      backgroundColor: const Color(0xFF2ECC71),
-      centerTitle: true,
-    ),
+        title: const Text(
+          "Home Page",
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: const Color(0xFF1A1A2E),
+        centerTitle: true,
+      ),
     body: isLoading
         ? const Center(child: CircularProgressIndicator())
         : Stack(

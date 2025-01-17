@@ -29,11 +29,13 @@ class _BudgetsPage extends State<BudgetsPage> {
         extendBodyBehindAppBar: true, // Extend body behind the AppBar
         backgroundColor: const Color.fromRGBO(26, 26, 46, 1), // Darker blue background
         appBar: AppBar(
-          title: const Text('Budgets'),
-          centerTitle: true,
-          backgroundColor: const Color.fromARGB(255, 26, 26, 46).withOpacity(0.9), // Semi-transparent AppBar
-          elevation: 0, // Remove AppBar shadow
+        title: const Text(
+          "Budgets",
+          style: TextStyle(color: Colors.white),
         ),
+        backgroundColor: const Color(0xFF1A1A2E),
+        centerTitle: true,
+      ),
         body: Stack(
           children: [
             Padding(
