@@ -11,20 +11,20 @@ class UserInfoPage extends StatefulWidget {
   @override
   State<UserInfoPage> createState() => _UserInfoPageState();
 }
-
 class _UserInfoPageState extends State<UserInfoPage> {
   String userName = '';
   int savedAmount = 0;
   int totalPoints = 0;
   int totalSpending = 0;
-  bool isLoading = true; // To show a loading indicator if needed
-
-  final Firebaseshit firebaseService = Firebaseshit();
+  bool isLoading = true;
+  late final Firebaseshit firebaseService;
 
   @override
   void initState() {
     super.initState();
-    fetchData(); // Fetch user data when the widget is initialized
+    firebaseService = Firebaseshit();
+    firebaseService.listenToAllTransactionsSimplified(); // Start listening
+    fetchData(); // Fetch initial user data
   }
 
   Future<void> fetchData() async {
@@ -45,7 +45,6 @@ class _UserInfoPageState extends State<UserInfoPage> {
           isLoading = false; // Stop loading on error
         });
       }
-      // Optionally handle errors here (e.g., show a Snackbar)
     }
   }
 
@@ -95,3 +94,4 @@ class _UserInfoPageState extends State<UserInfoPage> {
     );
   }
 }
+
