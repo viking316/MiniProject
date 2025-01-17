@@ -10,6 +10,7 @@ class BudgetsPage extends StatefulWidget {
   @override
   State<BudgetsPage> createState() => _BudgetsPage();
 }
+
 class _BudgetsPage extends State<BudgetsPage> {
   final Firebaseshit firebaseshit = Firebaseshit();
   bool isLoading = true; // Flag to show loading state
@@ -29,8 +30,6 @@ class _BudgetsPage extends State<BudgetsPage> {
         backgroundColor: const Color.fromRGBO(26, 26, 46, 1), // Darker blue background
         appBar: AppBar(
           title: const Text('Budgets'),
-
-          
           centerTitle: true,
           backgroundColor: const Color.fromARGB(255, 26, 26, 46).withOpacity(0.9), // Semi-transparent AppBar
           elevation: 0, // Remove AppBar shadow
@@ -61,10 +60,11 @@ class _BudgetsPage extends State<BudgetsPage> {
                             final category = cats[index];
 
                             // Ensure the category data is valid
-                            if (category.length < 3 ||
+                            if (category.length < 4 ||
                                 category[0] == null ||
                                 category[1] == null ||
-                                category[2] == null) {
+                                category[2] == null ||
+                                category[3] == null) {
                               return const SizedBox.shrink();
                             }
 
@@ -91,6 +91,7 @@ class _BudgetsPage extends State<BudgetsPage> {
                                   title: category[0] as String,
                                   curr: category[1],
                                   maxx: category[2],
+                                  points: category[3], // Pass points here
                                   border: true,
                                   backgroundColor:
                                       const Color.fromARGB(255, 43, 43, 54), // Lighter dark blue
@@ -109,8 +110,8 @@ class _BudgetsPage extends State<BudgetsPage> {
             ),
           ],
         ),
-
       ),
     );
   }
 }
+

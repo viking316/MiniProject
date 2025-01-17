@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:core';
-// import 'dart:core';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
@@ -29,9 +28,10 @@ class Firebaseshit {
           String docName = doc.id; // Document name
           int currentValue = (doc['current'] as num).toInt(); // 'current' field
           int budgetValue = (doc['budget'] as num).toInt(); // 'budget' field
+          int points = (doc['points'] as num).toInt(); // 'points' field
 
           // Add the data to the updated list
-          updatedCats.add([docName, currentValue, budgetValue]);
+          updatedCats.add([docName, currentValue, budgetValue, points]);
         }
 
         // Update the ValueNotifier with the new data
@@ -55,8 +55,9 @@ class Firebaseshit {
         String docName = doc.id;
         int currentValue = (doc['current'] as num).toInt();
         int budgetValue = (doc['budget'] as num).toInt();
+        int points = (doc['points'] as num).toInt();
 
-        budgetsList.add([docName, currentValue, budgetValue]);
+        budgetsList.add([docName, currentValue, budgetValue, points]);
       }
     } catch (e) {
       print('Error fetching budgets: $e');
@@ -66,50 +67,50 @@ class Firebaseshit {
   }
 
   Future<Map<String, dynamic>> fetchBudgetsAndUserInfo() async {
-  Map<String, dynamic> result = {
-    'categories': [],
-    'name': '',
-    'saved': 0,
-    'total_points': 0,
-    'total_spending': 0,
-  };
+    Map<String, dynamic> result = {
+      'categories': [],
+      'name': '',
+      'saved': 0,
+      'total_points': 0,
+      'total_spending': 0,
+    };
 
-  try {
-    // Fetch categories from 'categoriesdb'
-    final categoriesSnapshot = await _firestore
-        .collection('users')
-        .doc('user1')
-        .collection('categoriesdb')
-        .get();
+    try {
+      // Fetch categories from 'categoriesdb'
+      final categoriesSnapshot = await _firestore
+          .collection('users')
+          .doc('user1')
+          .collection('categoriesdb')
+          .get();
 
-    List<List<dynamic>> categories = [];
-    for (var doc in categoriesSnapshot.docs) {
-      String docName = doc.id;
-      int currentValue = (doc['current'] as num).toInt();
-      int budgetValue = (doc['budget'] as num).toInt();
-      categories.add([docName, currentValue, budgetValue]);
+      List<List<dynamic>> categories = [];
+      for (var doc in categoriesSnapshot.docs) {
+        String docName = doc.id;
+        int currentValue = (doc['current'] as num).toInt();
+        int budgetValue = (doc['budget'] as num).toInt();
+        int points = (doc['points'] as num).toInt();
+        categories.add([docName, currentValue, budgetValue, points]);
+      }
+
+      // Fetch user-level info from the user's document
+      final userDocSnapshot =
+          await _firestore.collection('users').doc('user1').get();
+
+      if (userDocSnapshot.exists) {
+        final data = userDocSnapshot.data();
+        result['name'] = data?['name'] ?? '';
+        result['saved'] = (data?['saved'] as num?)?.toInt() ?? 0;
+        result['total_points'] = (data?['total_points'] as num?)?.toInt() ?? 0;
+        result['total_spending'] = (data?['total_spending'] as num?)?.toInt() ?? 0;
+      }
+
+      result['categories'] = categories;
+    } catch (e) {
+      print('Error fetching data: $e');
     }
 
-    // Fetch user-level info from the user's document
-    final userDocSnapshot =
-        await _firestore.collection('users').doc('user1').get();
-
-    if (userDocSnapshot.exists) {
-      final data = userDocSnapshot.data();
-      result['name'] = data?['name'] ?? '';
-      result['saved'] = (data?['saved'] as num?)?.toInt() ?? 0;
-      result['total_points'] = (data?['total_points'] as num?)?.toInt() ?? 0;
-      result['total_spending'] = (data?['total_spending'] as num?)?.toInt() ?? 0;
-    }
-
-    result['categories'] = categories;
-  } catch (e) {
-    print('Error fetching data: $e');
+    return result;
   }
-
-  return result;
-}
-
 
   List<Map<String, dynamic>> getTransactionsByCategoryAndDateRange({
     required String category,
@@ -244,3 +245,5 @@ class Firebaseshit {
     _subscriptions.clear();
   }
 }
+
+

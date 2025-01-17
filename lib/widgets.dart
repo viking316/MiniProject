@@ -43,6 +43,7 @@ class CategoriesWidget extends StatefulWidget {
   final String title;
   final int curr;
   final int maxx;
+  final int points; // Add points parameter
   final bool border;
   final Color backgroundColor; // Background color for the container
   final Color progressBarColor; // Color for the progress bar
@@ -52,6 +53,7 @@ class CategoriesWidget extends StatefulWidget {
     required this.title,
     required this.curr,
     required this.maxx,
+    required this.points, // Initialize points
     required this.border,
     required this.backgroundColor,
     required this.progressBarColor,
@@ -99,25 +101,47 @@ class _CategoriesWidgetState extends State<CategoriesWidget>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Title and Icon Row
+            // Title, Icon, and Points Row
             Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween, // Space between title and points
                 children: [
-                  Text(
-                    widget.title,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  Row(
+                    children: [
+                      Text(
+                        widget.title,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(width: 5),
+                      Icon(
+                        trueiconn,
+                        color: Colors.white,
+                        size: 15,
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 5),
-                  Icon(
-                    trueiconn,
-                    color: Colors.white,
-                    size: 15,
+                  Row(
+                    children: [
+                      const Icon(
+                        FontAwesomeIcons.coins, // Gold coin icon
+                        color: Colors.amber, // Yellow color for the coin
+                        size: 16,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        "${widget.points}", // Display points next to the icon
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white70,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -161,6 +185,7 @@ class _CategoriesWidgetState extends State<CategoriesWidget>
     );
   }
 }
+
 
 
 // class SpendingsWidget extends StatelessWidget {
