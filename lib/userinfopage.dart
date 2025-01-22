@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:miniproject/Firebaseshit.dart';
 import 'package:miniproject/widgets.dart';
-import "package:miniproject/HomePage.dart";
 // import 'HomePage.dart';
-import 'package:flutter/material.dart';
 
 class UserInfoPage extends StatefulWidget {
   const UserInfoPage({super.key});

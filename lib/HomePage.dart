@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:math' show pi, sin, cos;
 import 'package:miniproject/Firebaseshit.dart';
-import 'package:miniproject/userinfopage.dart';
 import 'package:miniproject/widgets.dart';
 
 // Custom Pie Chart Data Class

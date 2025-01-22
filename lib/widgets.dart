@@ -643,9 +643,9 @@ class TransactionChartPage extends StatefulWidget {
   final ValueNotifier<List<List<dynamic>>> transformedTransactionsNotifier;
 
   const TransactionChartPage({
-    Key? key,
+    super.key,
     required this.transformedTransactionsNotifier,
-  }) : super(key: key);
+  });
 
   @override
   State<TransactionChartPage> createState() => _TransactionChartPageState();
@@ -808,8 +808,9 @@ class _TransactionChartPageState extends State<TransactionChartPage> {
             _buildNavigationButton(
               icon: Icons.arrow_forward,
               onPressed: () => setState(() {
-                if (currentPageIndex < monthlySpots.length - 1)
+                if (currentPageIndex < monthlySpots.length - 1) {
                   currentPageIndex++;
+                }
               }),
               isEnabled: currentPageIndex < monthlySpots.length - 1,
             ),
@@ -888,7 +889,7 @@ class _TransactionChartPageState extends State<TransactionChartPage> {
 class AddTransactionFAB extends StatelessWidget {
   final FirebaseFirestore firestore;
 
-  const AddTransactionFAB({Key? key, required this.firestore}) : super(key: key);
+  const AddTransactionFAB({super.key, required this.firestore});
 
   void _showAddTransactionDialog(BuildContext context) {
     final TextEditingController idController = TextEditingController();
@@ -1195,7 +1196,7 @@ class UserInfoCard extends StatefulWidget {
   final bool clicked;
 
   const UserInfoCard({
-    Key? key,
+    super.key,
     required this.name,
     required this.email,
     required this.savedAmount,
@@ -1203,7 +1204,7 @@ class UserInfoCard extends StatefulWidget {
     required this.totalPoints,
     this.showEmail = true,
     this.clicked = false, // Default to false if not provided
-  }) : super(key: key);
+  });
 
   @override
   State<UserInfoCard> createState() => _UserInfoCardState();
@@ -1350,7 +1351,7 @@ class _UserInfoCardState extends State<UserInfoCard>
       },
       child: widget.clicked && _slideAnimation != null
           ? SlideTransition(
-              position: _slideAnimation!,
+              position: _slideAnimation,
               child: card,
             )
           : card, // Show static card if not clicked or animation is null
