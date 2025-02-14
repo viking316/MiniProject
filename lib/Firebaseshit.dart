@@ -5,6 +5,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
 class Firebaseshit {
+  Future<List<String>> fetchInsights() async {
+  // Hardcoded insights for testing
+  return [
+    'Great job! You spent 80.8% less on Entertainment compared to last month. Keep it up!',
+    'Great job! You spent 14.9% less on Food compared to last month. Keep it up!',
+    'Great job! You spent 66.2% less on Other compared to last month. Keep it up!',
+    'Your spending on Transportation is up by 292.6% compared to last month.',
+    'Saving is like exercising – painful now but rewarding later. You got this!'
+];
+}
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   final ValueNotifier<List<List<dynamic>>> catsNotifier = ValueNotifier([]);
