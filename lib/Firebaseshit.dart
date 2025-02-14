@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:core';
-
+import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
@@ -15,32 +15,51 @@ class Firebaseshit {
   late final CollectionReference _categoriesRef =
       _firestore.collection('users').doc('user1').collection('categoriesdb');
 
+  // Insights Notifier
+  final ValueNotifier<Map<String, dynamic>> insightsNotifier =
+      ValueNotifier({
+    'total_spending': 0,
+    'saved': 0,
+    'total_points': 0,
+  });
+
   /// Fetches real-time updates from the 'categoriesdb' collection
   /// and updates the ValueNotifier whenever the data changes.
   void fetchBudgetsInRealTime() {
-    // Set up a real-time listener
-    _categoriesRef.snapshots().listen((snapshot) {
-      List<List<dynamic>> updatedCats = [];
+  _categoriesRef.snapshots().listen((snapshot) {
+    List<List<dynamic>> updatedCats = [];
+    try {
+      int totalSpending = 0, savedAmount = 0, totalPoints = 0;
 
-      try {
-        // Loop through the document snapshots
-        for (var doc in snapshot.docs) {
-          String docName = doc.id; // Document name
-          int currentValue = (doc['current'] as num).toInt(); // 'current' field
-          int budgetValue = (doc['budget'] as num).toInt(); // 'budget' field
-          int points = (doc['points'] as num).toInt(); // 'points' field
+      for (var doc in snapshot.docs) {
+        if (!doc.exists) continue; // Avoid errors on missing docs
 
-          // Add the data to the updated list
-          updatedCats.add([docName, currentValue, budgetValue, points]);
-        }
+        String docName = doc.id;
+        int currentValue = (doc['current'] as num?)?.toInt() ?? 0;
+        int budgetValue = (doc['budget'] as num?)?.toInt() ?? 0;
+        int points = (doc['points'] as num?)?.toInt() ?? 0;
 
-        // Update the ValueNotifier with the new data
-        catsNotifier.value = updatedCats;
-      } catch (e) {
-        print('Error processing real-time updates: $e');
+        totalSpending += currentValue;
+        savedAmount += (budgetValue - currentValue).clamp(0, budgetValue);
+        totalPoints += points;
+
+        updatedCats.add([docName, currentValue, budgetValue, points]);
       }
-    });
-  }
+
+      catsNotifier.value = List.from(updatedCats); // Ensuring UI updates properly
+      insightsNotifier.value = {
+        'total_spending': totalSpending,
+        'saved': savedAmount,
+        'total_points': totalPoints,
+      };
+    } catch (e) {
+      print('Error processing real-time budget updates: $e');
+    }
+  }, onError: (error) {
+    print("Firestore listener error: $error");
+  });
+}
+
 
   /// Fetches budgets once from the 'categoriesdb' collection.
   Future<List<List<dynamic>>> fetchBudgets() async {
@@ -65,6 +84,61 @@ class Firebaseshit {
 
     return budgetsList;
   }
+
+  
+  
+
+
+
+Future<List<String>> fetchInsights() async {
+  // Hardcoded insights for testing
+  return [
+    'Great job! You spent 80.8% less on Entertainment compared to last month. Keep it up!',
+    'Great job! You spent 14.9% less on Food compared to last month. Keep it up!',
+    'Great job! You spent 66.2% less on Other compared to last month. Keep it up!',
+    'Your spending on Transportation is up by 292.6% compared to last month.',
+    'Saving is like exercising – painful now but rewarding later. You got this!'
+  ];
+}
+
+void main() async {
+  List<String> insights = await fetchInsights();
+  print(insights);
+}
+
+
+
+
+
+// Future<void> fetchData() async {
+//   try {
+//     final data = await Firebaseshit().fetchBudgetsAndUserInfo();
+//     final List<String> fetchedInsights = await Firebaseshit().fetchInsights();
+    
+//     print('Fetched insights in HomePage: $fetchedInsights'); // Debug print
+    
+//     if (mounted) {
+//       setState(() {
+//         cats = data['categories'];
+//         userName = data['name'];
+//         savedAmount = data['saved'];
+//         totalPoints = data['total_points'];
+//         totalSpending = data['total_spending'];
+//         insightsList = fetchedInsights;
+//         print('InsightsList after setState: $insightsList'); // Debug print
+//         isLoading = false;
+//       });
+//       _controller.forward();
+//     }
+//   } catch (error) {
+//     print('Error in fetchData: $error'); // Debug print
+//     if (mounted) {
+//       setState(() {
+//         isLoading = false;
+//       });
+//     }
+//   }
+// }
 
   Future<Map<String, dynamic>> fetchBudgetsAndUserInfo() async {
     Map<String, dynamic> result = {
@@ -152,56 +226,40 @@ class Firebaseshit {
 
   /// Listens to all transactions for all categories in real-time.
   void listenToAllTransactions() {
-    // Listen to categories
-    final categorySub = _categoriesRef.snapshots().listen((categoriesSnapshot) {
-      // Clear old subscriptions when categories change
-      for (var sub in _subscriptions) {
-        sub.cancel();
-      }
-      _subscriptions.clear();
-      _allTransactions.clear();
+  final categorySub = _categoriesRef.snapshots().listen((categoriesSnapshot) {
+    for (var sub in _subscriptions) {
+      sub.cancel();
+    }
+    _subscriptions.clear();
+    _allTransactions.clear();
 
-      // For each category
-      for (var categoryDoc in categoriesSnapshot.docs) {
-        String categoryName = categoryDoc.id;
+    for (var categoryDoc in categoriesSnapshot.docs) {
+      String categoryName = categoryDoc.id;
+      final transactionSub = categoryDoc.reference
+          .collection('Transactions')
+          .snapshots()
+          .listen((transactionsSnapshot) {
+        _allTransactions[categoryName] = transactionsSnapshot.docs.map((transDoc) => {
+          'transactionId': transDoc.id,
+          'note': transDoc['note'] ?? '',
+          'amount': (transDoc['amount'] as num?)?.toDouble() ?? 0.0,
+          'type': transDoc['type'] ?? '',
+          'date': transDoc['date'] != null
+              ? (transDoc['date'] as Timestamp).toDate()
+              : DateTime.now(), // Fallback to avoid null errors
+          'category': categoryName,
+        }).toList();
 
-        // Listen to transactions for this category
-        final transactionSub = categoryDoc.reference
-            .collection('Transactions')
-            .snapshots()
-            .listen((transactionsSnapshot) {
-          List<Map<String, dynamic>> categoryTransactions = [];
+        transactionsNotifier.value = List.from(_allTransactions.values);
+      });
 
-          for (var transDoc in transactionsSnapshot.docs) {
-            final data = transDoc.data();
-            final Timestamp timestamp = data['date'];
+      _subscriptions.add(transactionSub);
+    }
+  });
 
-            categoryTransactions.add({
-              'transactionId': transDoc.id,
-              'note': data['note'] ?? '',
-              'amount': data['amount'] ?? 0,
-              'type': data['type'] ?? '',
-              'date': timestamp.toDate(),
-              'category': categoryName,
-            });
-          }
+  _subscriptions.add(categorySub);
+}
 
-          // Update the transactions map
-          _allTransactions[categoryName] = categoryTransactions;
-
-          // Convert map to list and update notifier
-          final allTransactionsList = _allTransactions.values.toList();
-          transactionsNotifier.value = List.from(allTransactionsList);
-          print(
-              'transactionsNotifier updated: ${transactionsNotifier.value.length}');
-        });
-
-        _subscriptions.add(transactionSub);
-      }
-    });
-
-    _subscriptions.add(categorySub);
-  }
 
   /// ValueNotifier for the transformed transaction format
   final ValueNotifier<List<List<dynamic>>> transformedTransactionsNotifier =
@@ -239,11 +297,16 @@ class Firebaseshit {
 
   /// Disposes of all active subscriptions.
   void dispose() {
-    for (var subscription in _subscriptions) {
-      subscription.cancel();
-    }
-    _subscriptions.clear();
+  for (var subscription in _subscriptions) {
+    subscription.cancel();
   }
+  _subscriptions.clear();
+  catsNotifier.dispose();
+  transactionsNotifier.dispose();
+  insightsNotifier.dispose();
 }
+
+}
+
 
 
