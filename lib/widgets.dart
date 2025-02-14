@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:miniproject/userinfopage.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'dart:math' show pi, sin, cos;
 
 // Helper Functions and Data
 String limitText(String text, int maxLength) {
@@ -74,7 +76,7 @@ class _CategoriesWidgetState extends State<CategoriesWidget>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 0, milliseconds: 500), // Duration for the animation
+      duration: const Duration(milliseconds: 500), // Duration for the animation
     );
     _animation = Tween<double>(begin: 0, end: widget.curr / widget.maxx)
         .animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
@@ -90,13 +92,14 @@ class _CategoriesWidgetState extends State<CategoriesWidget>
   @override
   Widget build(BuildContext context) {
     final trueiconn = getIconData(widget.title);
+    bool isOverBudget = widget.curr > widget.maxx;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 6.0),
       child: Container(
         height: 100,
         decoration: BoxDecoration(
-          color: widget.backgroundColor, // Use passed background color
+          color: widget.backgroundColor,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Column(
@@ -106,7 +109,7 @@ class _CategoriesWidgetState extends State<CategoriesWidget>
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween, // Space between title and points
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Row(
                     children: [
@@ -129,25 +132,33 @@ class _CategoriesWidgetState extends State<CategoriesWidget>
                   Row(
                     children: [
                       const Icon(
-                        FontAwesomeIcons.coins, // Gold coin icon
-                        color: Colors.amber, // Yellow color for the coin
+                        Icons.monetization_on,
+                        color: Colors.amber,
                         size: 16,
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        "${widget.points}", // Display points next to the icon
+                        "${widget.points}",
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
                           color: Colors.white70,
                         ),
                       ),
+                      const SizedBox(width: 10),
+                      // Show red exclamation mark if over budget
+                      if (isOverBudget)
+                        const Icon(
+                          Icons.error,
+                          color: Colors.red,
+                          size: 20,
+                        ),
                     ],
                   ),
                 ],
               ),
             ),
-            // Progress Bar with Animated Percentage
+            // Progress Bar
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Stack(
@@ -157,21 +168,19 @@ class _CategoriesWidgetState extends State<CategoriesWidget>
                     value: widget.curr,
                     maxValue: widget.maxx,
                     border: widget.border,
-                    progressBarColor: widget.progressBarColor, // Use passed color
+                    progressBarColor: widget.progressBarColor,
                   ),
                   Center(
                     child: AnimatedBuilder(
                       animation: _animation,
                       builder: (context, child) {
-                        final percentageValue = (_animation.value * 100)
-                            .clamp(0, 100)
-                            .toStringAsFixed(1);
+                        final percentageValue = (_animation.value * 100).toStringAsFixed(1);
                         return Text(
                           "$percentageValue%",
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white70,
+                            color: isOverBudget ? Colors.red : Colors.white70,
                           ),
                         );
                       },
@@ -186,6 +195,7 @@ class _CategoriesWidgetState extends State<CategoriesWidget>
     );
   }
 }
+
 
 
 
@@ -542,96 +552,96 @@ class HorizontalBarPainter extends CustomPainter {
   }
 }
 
-class PieChartWithLegend extends StatelessWidget {
-  final List<List<dynamic>> categories;
+// class PieChartWithLegend extends StatelessWidget {
+//   final List<List<dynamic>> categories;
 
-  const PieChartWithLegend({super.key, required this.categories});
+//   const PieChartWithLegend({super.key, required this.categories});
 
-  List<PieChartSectionData> _generatePieChartSections() {
-    return categories.map((category) {
-      final String label = category[0];
-      final double value = category[1].toDouble();
+//   List<PieChartSectionData> _generatePieChartSections() {
+//     return categories.map((category) {
+//       final String label = category[0];
+//       final double value = category[1].toDouble();
 
-      return PieChartSectionData(
-        value: value,
-        color: Colors
-            .primaries[categories.indexOf(category) % Colors.primaries.length],
-        radius: 50,
-        title: '',
-      );
-    }).toList();
-  }
+//       return PieChartSectionData(
+//         value: value,
+//         color: Colors
+//             .primaries[categories.indexOf(category) % Colors.primaries.length],
+//         radius: 50,
+//         title: '',
+//       );
+//     }).toList();
+//   }
 
-  Widget _buildScrollableLegend() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: Colors.black, width: 2),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      padding: const EdgeInsets.all(10),
-      child: SizedBox(
-        height: 150.0,
-        child: SingleChildScrollView(
-          child: Column(
-            children: List.generate(categories.length, (index) {
-              final category = categories[index];
-              final String label = category[0];
-              final Color color =
-                  Colors.primaries[index % Colors.primaries.length];
+//   Widget _buildScrollableLegend() {
+//     return Container(
+//       decoration: BoxDecoration(
+//         color: Colors.white,
+//         border: Border.all(color: Colors.black, width: 2),
+//         borderRadius: BorderRadius.circular(8),
+//       ),
+//       padding: const EdgeInsets.all(10),
+//       child: SizedBox(
+//         height: 150.0,
+//         child: SingleChildScrollView(
+//           child: Column(
+//             children: List.generate(categories.length, (index) {
+//               final category = categories[index];
+//               final String label = category[0];
+//               final Color color =
+//                   Colors.primaries[index % Colors.primaries.length];
 
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 5.0),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 12,
-                      height: 12,
-                      decoration:
-                          BoxDecoration(color: color, shape: BoxShape.circle),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        label,
-                        style: const TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.w500),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }),
-          ),
-        ),
-      ),
-    );
-  }
+//               return Padding(
+//                 padding: const EdgeInsets.symmetric(vertical: 5.0),
+//                 child: Row(
+//                   children: [
+//                     Container(
+//                       width: 12,
+//                       height: 12,
+//                       decoration:
+//                           BoxDecoration(color: color, shape: BoxShape.circle),
+//                     ),
+//                     const SizedBox(width: 8),
+//                     Expanded(
+//                       child: Text(
+//                         label,
+//                         style: const TextStyle(
+//                             fontSize: 14, fontWeight: FontWeight.w500),
+//                         overflow: TextOverflow.ellipsis,
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//               );
+//             }),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          flex: 2,
-          child: PieChart(
-            PieChartData(
-              sections: _generatePieChartSections(),
-              sectionsSpace: 2,
-              centerSpaceRadius: 40,
-            ),
-          ),
-        ),
-        const SizedBox(width: 20),
-        Expanded(
-          flex: 1,
-          child: _buildScrollableLegend(),
-        ),
-      ],
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Row(
+//       children: [
+//         Expanded(
+//           flex: 2,
+//           child: PieChart(
+//             PieChartData(
+//               sections: _generatePieChartSections(),
+//               sectionsSpace: 2,
+//               centerSpaceRadius: 40,
+//             ),
+//           ),
+//         ),
+//         const SizedBox(width: 20),
+//         Expanded(
+//           flex: 1,
+//           child: _buildScrollableLegend(),
+//         ),
+//       ],
+//     );
+//   }
+// }
 
 // import React from 'react';
 // import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -886,46 +896,209 @@ class _TransactionChartPageState extends State<TransactionChartPage> {
     );
   }
 }
-class AddTransactionFAB extends StatelessWidget {
+
+class SplitActionFAB extends StatelessWidget {
   final FirebaseFirestore firestore;
 
-  const AddTransactionFAB({super.key, required this.firestore});
+  const SplitActionFAB({super.key, required this.firestore});
 
-  void _showAddTransactionDialog(BuildContext context) {
-    final TextEditingController idController = TextEditingController();
-    final TextEditingController amountController = TextEditingController();
-    final TextEditingController noteController = TextEditingController();
-    String selectedCategory = 'Allowance';
-    String selectedType = 'Income';
-    bool flag = false;
-    DateTime selectedDate = DateTime.now();
+void _showAddReminderDialog(BuildContext context) {
+  final TextEditingController textController = TextEditingController();
+  DateTime selectedDate = DateTime.now();
+  bool isDone = false;
 
-    // Define custom colors
-    final baseColor = const Color.fromARGB(255, 28, 28, 60); // Made fully opaque
-    final lighterShade1 = const Color.fromARGB(255, 38, 38, 80); // Lighter for popup
-    final lighterShade2 = const Color.fromARGB(255, 48, 48, 100); // Even lighter for fields
-    final accentColor = const Color.fromARGB(255, 68, 68, 140); // For buttons and interactive elements
+  final baseColor = const Color.fromARGB(255, 28, 28, 60);
+  final lighterShade1 = const Color.fromARGB(255, 38, 38, 80);
+  final lighterShade2 = const Color.fromARGB(255, 48, 48, 100);
+  final accentColor = const Color.fromARGB(255, 68, 68, 140);
 
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: lighterShade1,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return Dialog(
+        backgroundColor: lighterShade1,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.8,
           ),
-          child: Container(
-            constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * 0.8,
-            ),
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).viewInsets.bottom,
-                  left: 16,
-                  right: 16,
-                  top: 16,
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+                left: 16,
+                right: 16,
+                top: 16,
+              ),
+              child: IntrinsicHeight(
+                child: StatefulBuilder(
+                  builder: (BuildContext context, StateSetter setState) {
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Text(
+                          "Add Reminder",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Text Field
+                        TextField(
+                          controller: textController,
+                          style: const TextStyle(color: Colors.white),
+                          decoration: InputDecoration(
+                            labelText: "Reminder Text",
+                            labelStyle: const TextStyle(color: Colors.grey),
+                            filled: true,
+                            fillColor: lighterShade2,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Date Picker
+                        OutlinedButton.icon(
+                          onPressed: () async {
+                            final pickedDate = await showDatePicker(
+                              context: context,
+                              initialDate: selectedDate,
+                              firstDate: DateTime.now(),
+                              lastDate: DateTime(2100),
+                              builder: (context, child) {
+                                return Theme(
+                                  data: Theme.of(context).copyWith(
+                                    colorScheme: ColorScheme.dark(
+                                      primary: accentColor,
+                                      onPrimary: Colors.white,
+                                      surface: lighterShade2,
+                                      onSurface: Colors.white,
+                                    ),
+                                    dialogBackgroundColor: lighterShade1,
+                                  ),
+                                  child: child!,
+                                );
+                              },
+                            );
+                            if (pickedDate != null) {
+                              setState(() => selectedDate = pickedDate);
+                            }
+                          },
+                          icon: const Icon(Icons.calendar_today, color: Colors.white),
+                          label: Text(
+                            "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: Colors.grey),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Done Switch
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text("Done", style: TextStyle(color: Colors.white)),
+                            Switch(
+                              value: isDone,
+                              onChanged: (value) {
+                                setState(() => isDone = value);
+                              },
+                              activeColor: accentColor,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Action Buttons
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: const Text("Cancel", style: TextStyle(color: Colors.redAccent)),
+                            ),
+                            const SizedBox(width: 8),
+                            ElevatedButton(
+                              onPressed: () {
+                                final reminderData = {
+                                  'text': textController.text,
+                                  'date': selectedDate,
+                                  'done': isDone,
+                                };
+
+                                firestore
+                                    .collection('users')
+                                    .doc('user1')
+                                    .collection('reminders')
+                                    .doc()
+                                    .set(reminderData);
+
+                                Navigator.of(context).pop();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: accentColor,
+                              ),
+                              child: const Text("Add", style: TextStyle(color: Colors.white)),
+                            ),
+                          ],
+                        ),
+                      ],
+                    );
+                  },
                 ),
+              ),
+            ),
+          ),
+        ),
+      );
+    },
+  );
+}
+void _showAddTransactionDialog(BuildContext context) {
+  final TextEditingController idController = TextEditingController();
+  final TextEditingController amountController = TextEditingController();
+  final TextEditingController noteController = TextEditingController();
+  String selectedCategory = 'Allowance';
+  String selectedType = 'Income';
+  bool flag = false;
+  DateTime selectedDate = DateTime.now();
+
+  final baseColor = const Color.fromARGB(255, 28, 28, 60);
+  final lighterShade1 = const Color.fromARGB(255, 38, 38, 80);
+  final lighterShade2 = const Color.fromARGB(255, 48, 48, 100);
+  final accentColor = const Color.fromARGB(255, 68, 68, 140);
+
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return Dialog(
+        backgroundColor: lighterShade1,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.8,
+          ),
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+                left: 16,
+                right: 16,
+                top: 16,
+              ),
+              child: IntrinsicHeight(
                 child: StatefulBuilder(
                   builder: (BuildContext context, StateSetter setState) {
                     return Column(
@@ -1167,22 +1340,51 @@ class AddTransactionFAB extends StatelessWidget {
               ),
             ),
           ),
-        );
-      },
-    );
-  }
+        ),
+      );
+    },
+  );
+}
+  
 
   @override
   Widget build(BuildContext context) {
-    return FloatingActionButton(
-      onPressed: () => _showAddTransactionDialog(context),
-      backgroundColor: const Color.fromARGB(255, 58, 58, 72), // Base color for FAB
-      child: const Icon(Icons.add, color: Colors.white),
+    return SpeedDial(
+      icon: Icons.add_outlined,
+      activeIcon: Icons.close_rounded,
+      backgroundColor: const Color.fromARGB(255, 58, 58, 72),
+      foregroundColor: Colors.white,
+      activeBackgroundColor: const Color.fromARGB(255, 58, 58, 72),
+      activeForegroundColor: Colors.white,
+      buttonSize: const Size(56.0, 56.0),
+      visible: true,
+      closeManually: false,
+      curve: Curves.bounceIn,
+      overlayColor: Colors.black,
+      overlayOpacity: 0.5,
+      elevation: 8.0,
+      shape: const CircleBorder(),
+      children: [
+        SpeedDialChild(
+          child: const Icon(Icons.notification_add),
+          backgroundColor: const Color.fromARGB(255, 68, 68, 140),
+          foregroundColor: Colors.white,
+          // label: 'Add Reminder',
+          labelStyle: const TextStyle(fontSize: 16.0),
+          onTap: () => _showAddReminderDialog(context),
+        ),
+        SpeedDialChild(
+          child: const Icon(Icons.currency_exchange),
+          backgroundColor: const Color.fromARGB(255, 68, 68, 140),
+          foregroundColor: Colors.white,
+          // label: 'Add Transaction',
+          labelStyle: const TextStyle(fontSize: 16.0),
+          onTap: () => _showAddTransactionDialog(context),
+        ),
+      ],
     );
   }
 }
-
-// import 'package:flutter/material.dart';
 
 
 
@@ -1328,7 +1530,7 @@ class _UserInfoCardState extends State<UserInfoCard>
                 const SizedBox(width: 5),
                 const Icon(
                   Icons.monetization_on,
-                  color: Colors.yellow,
+                  color: Colors.amber,
                   size: 20,
                 ),
               ],
@@ -1396,3 +1598,449 @@ class _UserInfoCardState extends State<UserInfoCard>
 //     );
 //   }
 // }
+
+
+class RemindersWidget extends StatelessWidget {
+  final FirebaseFirestore firestore;
+  final String userId;
+
+  const RemindersWidget({super.key, required this.firestore, required this.userId});
+
+  void _markReminderDone(String reminderId) {
+    firestore.collection('users').doc(userId).collection('reminders').doc(reminderId).update({'done': true});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: MediaQuery.of(context).size.height * 0.5,
+      child: StreamBuilder<QuerySnapshot>(
+        stream: firestore
+            .collection('users')
+            .doc(userId)
+            .collection('reminders')
+            .where('done', isEqualTo: false)
+            .snapshots(),
+        builder: (context, snapshot) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text("Today's Reminders",
+                    style: TextStyle(
+                        fontSize: 20, 
+                        fontWeight: FontWeight.bold, 
+                        color: Colors.white)),
+              ),
+              Expanded(
+                child: _buildReminderContent(snapshot),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildReminderContent(AsyncSnapshot<QuerySnapshot> snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+      return Center(
+        child: Text(
+          "No reminders for today",
+          style: TextStyle(
+              color: Colors.white.withOpacity(0.7),
+              fontSize: 16),
+        ),
+      );
+    }
+
+    // Get current date boundaries in local timezone
+    final now = DateTime.now();
+    final startOfDay = DateTime(now.year, now.month, now.day);
+    final endOfDay = startOfDay.add(const Duration(days: 1));
+
+    // Filter reminders locally with proper date comparison
+    final todaysReminders = snapshot.data!.docs.where((doc) {
+      final reminderDate = (doc['date'] as Timestamp).toDate().toLocal();
+      return reminderDate.isAfter(startOfDay.subtract(const Duration(seconds: 1))) && 
+             reminderDate.isBefore(endOfDay);
+    }).toList();
+
+    if (todaysReminders.isEmpty) {
+      return Center(
+        child: Text(
+          "No reminders for today",
+          style: TextStyle(
+              color: Colors.white.withOpacity(0.7),
+              fontSize: 16),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      itemCount: todaysReminders.length,
+      itemBuilder: (context, index) {
+        var reminder = todaysReminders[index];
+        return SwipeToComplete(
+          reminderText: reminder['text'],
+          reminderDate: (reminder['date'] as Timestamp).toDate(),
+          onComplete: () => _markReminderDone(reminder.id),
+        );
+      },
+    );
+  }
+}
+
+class SwipeToComplete extends StatefulWidget {
+  final String reminderText;
+  final DateTime reminderDate;
+  final VoidCallback onComplete;
+
+  const SwipeToComplete({
+    super.key,
+    required this.reminderText,
+    required this.reminderDate,
+    required this.onComplete,
+  });
+
+  @override
+  _SwipeToCompleteState createState() => _SwipeToCompleteState();
+}
+
+class _SwipeToCompleteState extends State<SwipeToComplete> {
+  double _dragExtent = 0.0;
+  bool _isSwiped = false;
+
+  void _handleDragUpdate(DragUpdateDetails details) {
+    if (!_isSwiped) {
+      setState(() {
+        _dragExtent += details.primaryDelta!;
+        if (_dragExtent < -100) _dragExtent = -100;
+        if (_dragExtent > 0) _dragExtent = 0;
+      });
+    } else {
+      setState(() {
+        _dragExtent += details.primaryDelta!;
+        if (_dragExtent > 0) _dragExtent = 0;
+        if (_dragExtent < -100) _dragExtent = -100;
+      });
+    }
+  }
+
+  void _handleDragEnd(DragEndDetails details) {
+    setState(() {
+      _isSwiped = _dragExtent <= -80;
+      if (_isSwiped) {
+        _dragExtent = -100;
+      } else {
+        _dragExtent = 0;
+      }
+    });
+  }
+
+  void _handleTap() {
+    if (_isSwiped) {
+      widget.onComplete();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onHorizontalDragUpdate: _handleDragUpdate,
+      onHorizontalDragEnd: _handleDragEnd,
+      child: Stack(
+        children: [
+          // Green background with tick mark (matching widget height)
+          Positioned.fill(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: CustomPaint(
+                painter: SwipePainter(_dragExtent),
+              ),
+            ),
+          ),
+          // Reminder card
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+            child: Transform.translate(
+              offset: Offset(_dragExtent, 0),
+              child: Card(
+                color:  const Color(0xFF1E1E3F),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: SizedBox(
+                  height: 60, // Fixed height to match green box
+                  child: ListTile(
+                    title: Text(
+                      widget.reminderText,
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    subtitle: Text(
+                      "${widget.reminderDate.day}/${widget.reminderDate.month}/${widget.reminderDate.year}",
+                      style: const TextStyle(color: Colors.grey, fontSize: 12),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          // Tap detector for the green box
+          if (_isSwiped)
+            Positioned(
+              right: 0,
+              top: 0,
+              bottom: 0,
+              width: 100,
+              child: GestureDetector(
+                onTap: _handleTap,
+                child: Container(
+                  color: Colors.transparent,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class SwipePainter extends CustomPainter {
+  final double dragExtent;
+
+  SwipePainter(this.dragExtent);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (dragExtent < -20) {
+      final paint = Paint()
+        ..color = const Color.fromARGB(49, 2, 250, 10)
+        ..style = PaintingStyle.fill;
+
+      // Match widget height (60) with 8px vertical padding
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTWH(
+            size.width + dragExtent, 
+            9, // Top padding
+            -dragExtent, 
+            size.height - 18, // Subtract vertical padding
+          ),
+          const Radius.circular(8),
+        ),
+        paint,
+      );
+
+      // Centered tick mark
+      final textPainter = TextPainter(
+        text: const TextSpan(
+          text: '✓',
+          style: TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      );
+      textPainter.layout();
+      
+      final tickOffset = Offset(
+        size.width + dragExtent/2 - textPainter.width/2,
+        size.height/2 - textPainter.height/2,
+      );
+      textPainter.paint(canvas, tickOffset);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+}
+// Custom Pie Chart Data Class
+class PieChartData {
+  final double value;
+  final Color color;
+  final String label;
+
+  PieChartData({
+    required this.value,
+    required this.color,
+    required this.label,
+  });
+}
+
+// Custom Animated Pie Chart Widget
+class AnimatedPieChart extends StatefulWidget {
+  final List<PieChartData> data;
+  final double size;
+  final Duration duration;
+
+  const AnimatedPieChart({
+    super.key,
+    required this.data,
+    this.size = 200,
+    this.duration = const Duration(milliseconds: 2000),
+  });
+
+  @override
+  State<AnimatedPieChart> createState() => _AnimatedPieChartState();
+}
+
+class _AnimatedPieChartState extends State<AnimatedPieChart>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: widget.duration,
+      vsync: this,
+    );
+
+    _animation = Tween<double>(
+      begin: 0.0,
+      end: 2 * pi,
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    ));
+
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _animation,
+      builder: (context, child) {
+        return CustomPaint(
+          size: Size(widget.size, widget.size),
+          painter: PieChartPainter(
+            data: widget.data,
+            progress: _animation.value,
+          ),
+        );
+      },
+    );
+  }
+}
+
+// Custom Pie Chart Painter
+class PieChartPainter extends CustomPainter {
+  final List<PieChartData> data;
+  final double progress;
+
+  PieChartPainter({
+    required this.data,
+    required this.progress,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2;
+    final total = data.fold<double>(0, (sum, item) => sum + item.value);
+
+    double startAngle = -pi / 2; // Start from the top
+
+    for (var item in data) {
+      final sweepAngle = (item.value / total) * 2 * pi;
+      final currentEndAngle = startAngle + sweepAngle;
+
+      if (startAngle < progress) {
+        final paint = Paint()
+          ..color = item.color
+          ..style = PaintingStyle.fill;
+
+        final currentSweepAngle =
+            currentEndAngle <= progress ? sweepAngle : progress - startAngle;
+
+        canvas.drawArc(
+          Rect.fromCircle(center: center, radius: radius),
+          startAngle,
+          currentSweepAngle,
+          true,
+          paint,
+        );
+      }
+
+      startAngle = currentEndAngle;
+    }
+
+    // Draw center circle
+    final centerPaint = Paint()
+      ..color = Colors.grey[900]!
+      ..style = PaintingStyle.fill;
+
+    canvas.drawCircle(
+      center,
+      radius * 0.3,
+      centerPaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(PieChartPainter oldDelegate) {
+    return oldDelegate.progress != progress;
+  }
+}
+
+// Legend Widget
+class PieChartLegend extends StatelessWidget {
+  final List<PieChartData> data;
+
+  const PieChartLegend({super.key, required this.data});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E1E3F), // Light navy blue
+        borderRadius: BorderRadius.circular(8),
+      ),
+      padding: const EdgeInsets.all(10),
+      child: Wrap(
+        spacing: 10,
+        runSpacing: 10,
+        children: data.map((item) {
+          return Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 12,
+                height: 12,
+                decoration: BoxDecoration(
+                  color: item.color,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                item.label,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          );
+        }).toList(),
+      ),
+    );
+  }
+}
