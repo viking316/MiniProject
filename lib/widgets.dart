@@ -1216,7 +1216,7 @@ void _showAddTransactionDialog(BuildContext context) {
                           onChanged: (value) {
                             setState(() => selectedType = value!);
                           },
-                          items: ['Income', 'Expense']
+                          items: ['income', 'expense']
                               .map((type) => DropdownMenuItem(
                                     value: type,
                                     child: Text(
